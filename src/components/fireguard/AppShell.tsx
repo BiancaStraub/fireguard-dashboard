@@ -5,12 +5,13 @@ import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
-const NAV = [
+import type { Role } from "@/lib/fireguard/types";
+const NAV: { to: string; label: string; icon: typeof LayoutDashboard; roles: Role[] }[] = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard, roles: ["admin", "inspetor"] },
   { to: "/inventario", label: "Inventário", icon: Boxes, roles: ["admin"] },
   { to: "/inspecao", label: "Inspeção", icon: ClipboardCheck, roles: ["admin", "inspetor"] },
   { to: "/relatorios", label: "Relatórios", icon: FileText, roles: ["admin"] },
-] as const;
+];
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const user = useApp((s) => s.user);
