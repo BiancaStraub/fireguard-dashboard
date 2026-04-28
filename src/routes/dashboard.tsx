@@ -3,8 +3,7 @@ import { AppShell } from "@/components/fireguard/AppShell";
 import { useApp, statusFor, daysUntil } from "@/lib/fireguard/store";
 import { useMemo } from "react";
 import { AlertTriangle, CheckCircle2, Clock, Boxes, ArrowUpRight } from "lucide-react";
-import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, Cell } from "recharts";
-import { StatusBadge } from "@/components/fireguard/StatusBadge";
+import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip } from "recharts";
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({ meta: [{ title: "Dashboard — FireGuard" }] }),
@@ -86,9 +85,7 @@ function DashboardPage() {
                 <XAxis dataKey="setor" tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} interval={0} angle={-20} textAnchor="end" height={60} />
                 <YAxis tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} />
                 <Tooltip contentStyle={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 8, fontSize: 12 }} />
-                <Bar dataKey="total" fill="var(--carbon)" radius={[6, 6, 0, 0]} maxBarSize={48}>
-                  {porSetor.map((_, i) => <Cell key={i} />)}
-                </Bar>
+                <Bar dataKey="total" fill="var(--carbon)" radius={[6, 6, 0, 0]} maxBarSize={48} />
                 <Bar dataKey="alerta" fill="var(--security)" radius={[6, 6, 0, 0]} maxBarSize={48} />
               </BarChart>
             </ResponsiveContainer>
