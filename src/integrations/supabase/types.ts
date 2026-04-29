@@ -14,16 +14,161 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      extintores: {
+        Row: {
+          altura_cm: number | null
+          andar: string
+          classes: string[]
+          codigo: string
+          created_at: string
+          fabricante: string | null
+          id: string
+          predio: string
+          setor: string
+          status: string
+          teste_hidrostatico: string | null
+          tipo: string
+          updated_at: string
+          validade_carga: string
+        }
+        Insert: {
+          altura_cm?: number | null
+          andar: string
+          classes?: string[]
+          codigo: string
+          created_at?: string
+          fabricante?: string | null
+          id?: string
+          predio: string
+          setor: string
+          status?: string
+          teste_hidrostatico?: string | null
+          tipo: string
+          updated_at?: string
+          validade_carga: string
+        }
+        Update: {
+          altura_cm?: number | null
+          andar?: string
+          classes?: string[]
+          codigo?: string
+          created_at?: string
+          fabricante?: string | null
+          id?: string
+          predio?: string
+          setor?: string
+          status?: string
+          teste_hidrostatico?: string | null
+          tipo?: string
+          updated_at?: string
+          validade_carga?: string
+        }
+        Relationships: []
+      }
+      inspecoes: {
+        Row: {
+          conforme: boolean
+          created_at: string
+          data: string
+          extintor_id: string
+          id: string
+          inspetor_id: string
+          inspetor_nome: string
+          itens: Json
+          observacoes: string | null
+        }
+        Insert: {
+          conforme?: boolean
+          created_at?: string
+          data?: string
+          extintor_id: string
+          id?: string
+          inspetor_id: string
+          inspetor_nome: string
+          itens?: Json
+          observacoes?: string | null
+        }
+        Update: {
+          conforme?: boolean
+          created_at?: string
+          data?: string
+          extintor_id?: string
+          id?: string
+          inspetor_id?: string
+          inspetor_nome?: string
+          itens?: Json
+          observacoes?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inspecoes_extintor_id_fkey"
+            columns: ["extintor_id"]
+            isOneToOne: false
+            referencedRelation: "extintores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          nome: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id: string
+          nome: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          nome?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "inspetor"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +295,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "inspetor"],
+    },
   },
 } as const
