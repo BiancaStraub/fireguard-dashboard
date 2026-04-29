@@ -1,4 +1,4 @@
-import type { ExtStatusBadge } from "@/lib/fireguard/store";
+import type { ExtStatusBadge } from "@/lib/fireguard/services";
 import { cn } from "@/lib/utils";
 
 const MAP: Record<ExtStatusBadge, { label: string; className: string }> = {
