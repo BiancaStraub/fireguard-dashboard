@@ -1,11 +1,12 @@
 import { createFileRoute, Navigate } from "@tanstack/react-router";
-import { useApp } from "@/lib/fireguard/store";
+import { useAuth } from "@/lib/fireguard/auth";
 
 export const Route = createFileRoute("/")({
   component: Index,
 });
 
 function Index() {
-  const user = useApp((s) => s.user);
+  const { user, loading } = useAuth();
+  if (loading) return null;
   return <Navigate to={user ? "/dashboard" : "/login"} />;
 }
