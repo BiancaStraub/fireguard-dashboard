@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as RelatoriosRouteImport } from './routes/relatorios'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as InventarioRouteImport } from './routes/inventario'
 import { Route as InspecaoRouteImport } from './routes/inspecao'
@@ -16,6 +17,11 @@ import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CadastroIdRouteImport } from './routes/cadastro.$id'
 
+const RelatoriosRoute = RelatoriosRouteImport.update({
+  id: '/relatorios',
+  path: '/relatorios',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
@@ -53,6 +59,7 @@ export interface FileRoutesByFullPath {
   '/inspecao': typeof InspecaoRoute
   '/inventario': typeof InventarioRoute
   '/login': typeof LoginRoute
+  '/relatorios': typeof RelatoriosRoute
   '/cadastro/$id': typeof CadastroIdRoute
 }
 export interface FileRoutesByTo {
@@ -61,6 +68,7 @@ export interface FileRoutesByTo {
   '/inspecao': typeof InspecaoRoute
   '/inventario': typeof InventarioRoute
   '/login': typeof LoginRoute
+  '/relatorios': typeof RelatoriosRoute
   '/cadastro/$id': typeof CadastroIdRoute
 }
 export interface FileRoutesById {
@@ -70,6 +78,7 @@ export interface FileRoutesById {
   '/inspecao': typeof InspecaoRoute
   '/inventario': typeof InventarioRoute
   '/login': typeof LoginRoute
+  '/relatorios': typeof RelatoriosRoute
   '/cadastro/$id': typeof CadastroIdRoute
 }
 export interface FileRouteTypes {
@@ -80,6 +89,7 @@ export interface FileRouteTypes {
     | '/inspecao'
     | '/inventario'
     | '/login'
+    | '/relatorios'
     | '/cadastro/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -88,6 +98,7 @@ export interface FileRouteTypes {
     | '/inspecao'
     | '/inventario'
     | '/login'
+    | '/relatorios'
     | '/cadastro/$id'
   id:
     | '__root__'
@@ -96,6 +107,7 @@ export interface FileRouteTypes {
     | '/inspecao'
     | '/inventario'
     | '/login'
+    | '/relatorios'
     | '/cadastro/$id'
   fileRoutesById: FileRoutesById
 }
@@ -105,11 +117,19 @@ export interface RootRouteChildren {
   InspecaoRoute: typeof InspecaoRoute
   InventarioRoute: typeof InventarioRoute
   LoginRoute: typeof LoginRoute
+  RelatoriosRoute: typeof RelatoriosRoute
   CadastroIdRoute: typeof CadastroIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/relatorios': {
+      id: '/relatorios'
+      path: '/relatorios'
+      fullPath: '/relatorios'
+      preLoaderRoute: typeof RelatoriosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/login': {
       id: '/login'
       path: '/login'
@@ -161,6 +181,7 @@ const rootRouteChildren: RootRouteChildren = {
   InspecaoRoute: InspecaoRoute,
   InventarioRoute: InventarioRoute,
   LoginRoute: LoginRoute,
+  RelatoriosRoute: RelatoriosRoute,
   CadastroIdRoute: CadastroIdRoute,
 }
 export const routeTree = rootRouteImport
