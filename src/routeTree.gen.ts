@@ -11,8 +11,10 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as InventarioRouteImport } from './routes/inventario'
+import { Route as InspecaoRouteImport } from './routes/inspecao'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as CadastroIdRouteImport } from './routes/cadastro.$id'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -22,6 +24,11 @@ const LoginRoute = LoginRouteImport.update({
 const InventarioRoute = InventarioRouteImport.update({
   id: '/inventario',
   path: '/inventario',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InspecaoRoute = InspecaoRouteImport.update({
+  id: '/inspecao',
+  path: '/inspecao',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardRoute = DashboardRouteImport.update({
@@ -34,39 +41,71 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CadastroIdRoute = CadastroIdRouteImport.update({
+  id: '/cadastro/$id',
+  path: '/cadastro/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
+  '/inspecao': typeof InspecaoRoute
   '/inventario': typeof InventarioRoute
   '/login': typeof LoginRoute
+  '/cadastro/$id': typeof CadastroIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
+  '/inspecao': typeof InspecaoRoute
   '/inventario': typeof InventarioRoute
   '/login': typeof LoginRoute
+  '/cadastro/$id': typeof CadastroIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
+  '/inspecao': typeof InspecaoRoute
   '/inventario': typeof InventarioRoute
   '/login': typeof LoginRoute
+  '/cadastro/$id': typeof CadastroIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/dashboard' | '/inventario' | '/login'
+  fullPaths:
+    | '/'
+    | '/dashboard'
+    | '/inspecao'
+    | '/inventario'
+    | '/login'
+    | '/cadastro/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/dashboard' | '/inventario' | '/login'
-  id: '__root__' | '/' | '/dashboard' | '/inventario' | '/login'
+  to:
+    | '/'
+    | '/dashboard'
+    | '/inspecao'
+    | '/inventario'
+    | '/login'
+    | '/cadastro/$id'
+  id:
+    | '__root__'
+    | '/'
+    | '/dashboard'
+    | '/inspecao'
+    | '/inventario'
+    | '/login'
+    | '/cadastro/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardRoute: typeof DashboardRoute
+  InspecaoRoute: typeof InspecaoRoute
   InventarioRoute: typeof InventarioRoute
   LoginRoute: typeof LoginRoute
+  CadastroIdRoute: typeof CadastroIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -85,6 +124,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof InventarioRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/inspecao': {
+      id: '/inspecao'
+      path: '/inspecao'
+      fullPath: '/inspecao'
+      preLoaderRoute: typeof InspecaoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/dashboard': {
       id: '/dashboard'
       path: '/dashboard'
@@ -99,15 +145,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/cadastro/$id': {
+      id: '/cadastro/$id'
+      path: '/cadastro/$id'
+      fullPath: '/cadastro/$id'
+      preLoaderRoute: typeof CadastroIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRoute: DashboardRoute,
+  InspecaoRoute: InspecaoRoute,
   InventarioRoute: InventarioRoute,
   LoginRoute: LoginRoute,
+  CadastroIdRoute: CadastroIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
