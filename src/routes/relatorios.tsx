@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AppShell } from "@/components/fireguard/AppShell";
-import { useApp } from "@/lib/fireguard/store";
+import { useQuery } from "@tanstack/react-query";
+import { listInspecoes, listExtintores, type ChecklistItem } from "@/lib/fireguard/services";
 import { Button } from "@/components/ui/button";
 import { FileDown, CheckCircle2, AlertTriangle, User } from "lucide-react";
 import { format } from "date-fns";
@@ -13,11 +14,34 @@ export const Route = createFileRoute("/relatorios")({
 });
 
 function RelatoriosPage() {
-  const inspecoes = useApp((s) => s.inspecoes);
+  const { data: inspecoes = [] } = useQuery({ queryKey: ["inspecoes"], queryFn: () => listInspecoes() });
+  const { data: extintores = [] } = useQuery({ queryKey: ["extintores"], queryFn: listExtintores });
+  const codigoMap = new Map(extintores.map((e) => [e.id, e.codigo]));
   const sorted = [...inspecoes].sort((a, b) => +new Date(b.data) - +new Date(a.data));
 
   const exportar = () => {
-    toast.success("Relatório mensal gerado", { description: "PDF simulado · 12 páginas · pronto para download" });
+    const now = new Date();
+    const mes = sorted.filter((i) => {
+      const d = new Date(i.data);
+      return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+    });
+    const header = ["Data", "Codigo", "Inspetor", "Conforme", "Observacoes"];
+    const rows = mes.map((i) => [
+      format(new Date(i.data), "dd/MM/yyyy HH:mm"),
+      codigoMap.get(i.extintor_id) ?? i.extintor_id,
+      i.inspetor_nome,
+      i.conforme ? "Sim" : "Nao",
+      (i.observacoes ?? "").replace(/\n/g, " "),
+    ]);
+    const csv = [header, ...rows].map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `relatorio-${format(now, "yyyy-MM")}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success(`Relatório do mês exportado (${mes.length} inspeções)`);
   };
 
   return (
@@ -37,7 +61,7 @@ function RelatoriosPage() {
         <div className="lg:col-span-1 space-y-4">
           <SummaryCard label="Conformes" value={sorted.filter((i) => i.conforme).length} accent="safe" />
           <SummaryCard label="Não Conformes" value={sorted.filter((i) => !i.conforme).length} accent="security" />
-          <SummaryCard label="Total no período" value={sorted.length} accent="default" />
+          <SummaryCard label="Total" value={sorted.length} accent="default" />
         </div>
 
         <div className="lg:col-span-3">
@@ -49,7 +73,8 @@ function RelatoriosPage() {
               <div className="absolute left-4 top-2 bottom-2 w-px bg-border" />
               <div className="space-y-6">
                 {sorted.map((i) => {
-                  const naoConformes = i.itens.filter((it) => !it.conforme);
+                  const itens = (Array.isArray(i.itens) ? i.itens : []) as unknown as ChecklistItem[];
+                  const naoConformes = itens.filter((it) => !it.conforme);
                   return (
                     <div key={i.id} className="relative pl-12">
                       <div className={`absolute left-0 top-1 size-8 rounded-full border-4 border-background flex items-center justify-center ${i.conforme ? "bg-safe" : "bg-security"}`}>
@@ -59,14 +84,14 @@ function RelatoriosPage() {
                         <div className="flex items-start justify-between gap-3 mb-2 flex-wrap">
                           <div>
                             <p className="font-semibold flex items-center gap-2 flex-wrap">
-                              <span className="font-mono text-sm">{i.extintorSerie}</span>
+                              <span className="font-mono text-sm">{codigoMap.get(i.extintor_id) ?? i.extintor_id.slice(0, 8)}</span>
                               <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${i.conforme ? "bg-safe/10 text-safe" : "bg-security/10 text-security"}`}>
                                 {i.conforme ? "Conforme" : "Não conforme"}
                               </span>
                             </p>
                             <p className="text-xs text-muted-foreground mt-1 flex items-center gap-3">
                               <span>{format(new Date(i.data), "dd 'de' MMM 'às' HH:mm", { locale: ptBR })}</span>
-                              <span className="flex items-center gap-1"><User className="size-3" />{i.inspetor}</span>
+                              <span className="flex items-center gap-1"><User className="size-3" />{i.inspetor_nome}</span>
                             </p>
                           </div>
                         </div>

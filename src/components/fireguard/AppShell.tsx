@@ -1,32 +1,33 @@
 import { Link, useLocation, useNavigate } from "@tanstack/react-router";
-import { useApp } from "@/lib/fireguard/store";
 import { Flame, LayoutDashboard, Boxes, ClipboardCheck, FileText, LogOut, Menu, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { useAuth, type Role } from "@/lib/fireguard/auth";
 
-import type { Role } from "@/lib/fireguard/types";
 const NAV: { to: string; label: string; icon: typeof LayoutDashboard; roles: Role[] }[] = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard, roles: ["admin", "inspetor"] },
-  { to: "/inventario", label: "Inventário", icon: Boxes, roles: ["admin"] },
+  { to: "/inventario", label: "Inventário", icon: Boxes, roles: ["admin", "inspetor"] },
   { to: "/inspecao", label: "Inspeção", icon: ClipboardCheck, roles: ["admin", "inspetor"] },
-  { to: "/relatorios", label: "Relatórios", icon: FileText, roles: ["admin"] },
+  { to: "/relatorios", label: "Relatórios", icon: FileText, roles: ["admin", "inspetor"] },
 ];
 
 export function AppShell({ children }: { children: React.ReactNode }) {
-  const user = useApp((s) => s.user);
-  const logout = useApp((s) => s.logout);
+  const { user, profile, loading, signOut } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    if (!user) navigate({ to: "/login" });
-  }, [user, navigate]);
+    if (!loading && !user) navigate({ to: "/login" });
+  }, [user, loading, navigate]);
   useEffect(() => { setOpen(false); }, [location.pathname]);
 
-  if (!user) return null;
-  const items = NAV.filter((n) => n.roles.includes(user.role));
+  if (loading || !user) return null;
+  const role: Role = profile?.role ?? "inspetor";
+  const items = NAV.filter((n) => n.roles.includes(role));
+  const nome = profile?.nome ?? user.email ?? "Usuário";
+  const initials = nome.split(" ").map((n) => n[0]).slice(0, 2).join("").toUpperCase();
 
   return (
     <div className="min-h-dvh bg-background">
@@ -56,13 +57,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </div>
           <div className="flex items-center gap-3">
             <div className="hidden sm:block text-right leading-tight">
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{user.role === "admin" ? "Administrador" : "Inspetor"}</p>
-              <p className="text-sm font-semibold">{user.nome}</p>
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{role === "admin" ? "Administrador" : "Inspetor"}</p>
+              <p className="text-sm font-semibold">{nome}</p>
             </div>
             <div className="size-10 rounded-full bg-carbon text-carbon-foreground flex items-center justify-center font-semibold text-sm">
-              {user.nome.split(" ").map((n) => n[0]).slice(0, 2).join("")}
+              {initials}
             </div>
-            <Button variant="ghost" size="icon" className="hidden md:inline-flex" onClick={() => { logout(); navigate({ to: "/login" }); }}>
+            <Button variant="ghost" size="icon" className="hidden md:inline-flex" onClick={async () => { await signOut(); navigate({ to: "/login" }); }}>
               <LogOut className="size-4" />
             </Button>
             <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setOpen(!open)}>
@@ -85,7 +86,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   </Link>
                 );
               })}
-              <button onClick={() => { logout(); navigate({ to: "/login" }); }} className="px-3 py-2.5 text-sm font-medium text-muted-foreground flex items-center gap-3">
+              <button onClick={async () => { await signOut(); navigate({ to: "/login" }); }} className="px-3 py-2.5 text-sm font-medium text-muted-foreground flex items-center gap-3">
                 <LogOut className="size-4" />Sair
               </button>
             </div>

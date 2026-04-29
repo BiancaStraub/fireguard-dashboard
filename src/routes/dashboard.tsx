@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { AppShell } from "@/components/fireguard/AppShell";
-import { useApp, statusFor, daysUntil } from "@/lib/fireguard/store";
+import { useQuery } from "@tanstack/react-query";
+import { listExtintores, listInspecoes, statusFor, daysUntil } from "@/lib/fireguard/services";
 import { useMemo } from "react";
 import { AlertTriangle, CheckCircle2, Clock, Boxes, ArrowUpRight } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip } from "recharts";
@@ -11,15 +12,15 @@ export const Route = createFileRoute("/dashboard")({
 });
 
 function DashboardPage() {
-  const extintores = useApp((s) => s.extintores);
-  const inspecoes = useApp((s) => s.inspecoes);
+  const { data: extintores = [] } = useQuery({ queryKey: ["extintores"], queryFn: listExtintores });
+  const { data: inspecoes = [] } = useQuery({ queryKey: ["inspecoes"], queryFn: () => listInspecoes() });
 
   const kpis = useMemo(() => {
     const ativos = extintores.filter((e) => e.status === "Ativo");
-    const vencidos = ativos.filter((e) => daysUntil(e.validadeCarga) < 0).length;
-    const v7 = ativos.filter((e) => { const d = daysUntil(e.validadeCarga); return d >= 0 && d <= 7; }).length;
-    const v15 = ativos.filter((e) => { const d = daysUntil(e.validadeCarga); return d > 7 && d <= 15; }).length;
-    const v30 = ativos.filter((e) => { const d = daysUntil(e.validadeCarga); return d > 15 && d <= 30; }).length;
+    const vencidos = ativos.filter((e) => daysUntil(e.validade_carga) < 0).length;
+    const v7 = ativos.filter((e) => { const d = daysUntil(e.validade_carga); return d >= 0 && d <= 7; }).length;
+    const v15 = ativos.filter((e) => { const d = daysUntil(e.validade_carga); return d > 7 && d <= 15; }).length;
+    const v30 = ativos.filter((e) => { const d = daysUntil(e.validade_carga); return d > 15 && d <= 30; }).length;
     const mes = new Date();
     const inspMes = inspecoes.filter((i) => {
       const d = new Date(i.data);
@@ -43,7 +44,7 @@ function DashboardPage() {
   const recentes = useMemo(() => {
     return [...extintores]
       .filter((e) => e.status === "Ativo")
-      .sort((a, b) => daysUntil(a.validadeCarga) - daysUntil(b.validadeCarga))
+      .sort((a, b) => daysUntil(a.validade_carga) - daysUntil(b.validade_carga))
       .slice(0, 5);
   }, [extintores]);
 
@@ -80,15 +81,21 @@ function DashboardPage() {
             </div>
           </div>
           <div className="h-72 -mx-2">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={porSetor}>
-                <XAxis dataKey="setor" tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} interval={0} angle={-20} textAnchor="end" height={60} />
-                <YAxis tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} />
-                <Tooltip contentStyle={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 8, fontSize: 12 }} />
-                <Bar dataKey="total" fill="var(--carbon)" radius={[6, 6, 0, 0]} maxBarSize={48} />
-                <Bar dataKey="alerta" fill="var(--security)" radius={[6, 6, 0, 0]} maxBarSize={48} />
-              </BarChart>
-            </ResponsiveContainer>
+            {porSetor.length === 0 ? (
+              <div className="h-full flex items-center justify-center text-sm text-muted-foreground">
+                Cadastre extintores para ver a distribuição por setor.
+              </div>
+            ) : (
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={porSetor}>
+                  <XAxis dataKey="setor" tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} interval={0} angle={-20} textAnchor="end" height={60} />
+                  <YAxis tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} />
+                  <Tooltip contentStyle={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 8, fontSize: 12 }} />
+                  <Bar dataKey="total" fill="var(--carbon)" radius={[6, 6, 0, 0]} maxBarSize={48} />
+                  <Bar dataKey="alerta" fill="var(--security)" radius={[6, 6, 0, 0]} maxBarSize={48} />
+                </BarChart>
+              </ResponsiveContainer>
+            )}
           </div>
         </div>
 
@@ -97,15 +104,20 @@ function DashboardPage() {
             <h3 className="font-semibold text-lg">Próximos do Vencimento</h3>
             <Link to="/inventario" className="text-xs font-medium text-muted-foreground hover:text-foreground flex items-center gap-1">Ver todos <ArrowUpRight className="size-3" /></Link>
           </div>
+          {recentes.length === 0 && (
+            <div className="p-4 bg-card rounded-xl border border-border text-sm text-muted-foreground shadow-soft">
+              Nenhum extintor cadastrado ainda.
+            </div>
+          )}
           {recentes.map((e) => {
-            const d = daysUntil(e.validadeCarga);
+            const d = daysUntil(e.validade_carga);
             return (
               <div key={e.id} className="p-4 bg-card rounded-xl border border-border flex items-center gap-4 shadow-soft">
                 <div className={`size-10 rounded-lg flex items-center justify-center shrink-0 ${d < 0 ? "bg-security/10" : d <= 15 ? "bg-alert/15" : "bg-safe/10"}`}>
                   <div className={`size-2 rounded-full ${d < 0 ? "bg-security" : d <= 15 ? "bg-alert" : "bg-safe"}`} />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-semibold truncate">{e.serie} · {e.tipo}</p>
+                  <p className="text-sm font-semibold truncate">{e.codigo} · {e.tipo}</p>
                   <p className="text-xs text-muted-foreground truncate">{e.setor} · {e.predio}</p>
                 </div>
                 <div className="text-right">

@@ -1,10 +1,11 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
-import { useApp } from "@/lib/fireguard/store";
+import { useEffect, useState } from "react";
+import { useAuth } from "@/lib/fireguard/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Flame, Shield, HardHat } from "lucide-react";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Flame } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/login")({
@@ -13,24 +14,38 @@ export const Route = createFileRoute("/login")({
 });
 
 function LoginPage() {
-  const login = useApp((s) => s.login);
+  const { user, loading, signIn, signUp } = useAuth();
   const navigate = useNavigate();
-  const [email, setEmail] = useState("admin@fireguard.com");
-  const [password, setPassword] = useState("demo1234");
+  const [tab, setTab] = useState<"login" | "signup">("login");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [nome, setNome] = useState("");
+  const [busy, setBusy] = useState(false);
 
-  const submit = (e: React.FormEvent) => {
+  useEffect(() => {
+    if (!loading && user) navigate({ to: "/dashboard" });
+  }, [user, loading, navigate]);
+
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password) return;
-    const u = login(email, password);
-    if (u) {
-      toast.success(`Bem-vindo, ${u.nome}`);
-      navigate({ to: "/dashboard" });
+    setBusy(true);
+    try {
+      if (tab === "login") {
+        const { error } = await signIn(email, password);
+        if (error) { toast.error(error); return; }
+        toast.success("Bem-vindo de volta!");
+        navigate({ to: "/dashboard" });
+      } else {
+        if (!nome) { toast.error("Informe seu nome"); return; }
+        const { error } = await signUp(email, password, nome);
+        if (error) { toast.error(error); return; }
+        toast.success("Conta criada — você já pode entrar.");
+        setTab("login");
+      }
+    } finally {
+      setBusy(false);
     }
-  };
-
-  const fillAs = (kind: "admin" | "inspetor") => {
-    setEmail(kind === "admin" ? "admin@fireguard.com" : "inspetor@fireguard.com");
-    setPassword("demo1234");
   };
 
   return (
@@ -47,11 +62,7 @@ function LoginPage() {
           <h1 className="text-4xl font-semibold tracking-tight leading-tight">Conformidade NR-23 em tempo real, na palma da mão.</h1>
           <p className="text-zinc-400 leading-relaxed">Gestão de patrimônio, inspeções via QR Code e relatórios de auditoria — tudo em um único painel.</p>
         </div>
-        <div className="grid grid-cols-3 gap-4 relative z-10 text-xs font-mono">
-          <div><div className="text-2xl font-semibold tracking-tight">1.482</div><div className="text-zinc-500 uppercase">Ativos</div></div>
-          <div><div className="text-2xl font-semibold tracking-tight text-safe">98.2%</div><div className="text-zinc-500 uppercase">Conformes</div></div>
-          <div><div className="text-2xl font-semibold tracking-tight">42</div><div className="text-zinc-500 uppercase">Inspetores</div></div>
-        </div>
+        <p className="text-xs font-mono text-zinc-500 relative z-10">O primeiro usuário cadastrado vira <span className="text-safe">admin</span> automaticamente.</p>
         <div className="absolute -bottom-32 -right-32 size-96 rounded-full bg-security/10 blur-3xl" />
       </div>
 
@@ -64,35 +75,37 @@ function LoginPage() {
             <span className="text-xl font-semibold tracking-tight uppercase">FireGuard</span>
           </div>
           <p className="text-xs font-mono uppercase tracking-widest text-muted-foreground mb-2">Acesso ao sistema</p>
-          <h2 className="text-3xl font-semibold tracking-tight mb-8">Entrar na sua conta</h2>
+          <h2 className="text-3xl font-semibold tracking-tight mb-8">{tab === "login" ? "Entrar na sua conta" : "Criar conta"}</h2>
+
+          <Tabs value={tab} onValueChange={(v) => setTab(v as "login" | "signup")} className="w-full">
+            <TabsList className="grid grid-cols-2 w-full mb-6">
+              <TabsTrigger value="login">Entrar</TabsTrigger>
+              <TabsTrigger value="signup">Cadastrar</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="login" />
+            <TabsContent value="signup" />
+          </Tabs>
 
           <form onSubmit={submit} className="space-y-5">
+            {tab === "signup" && (
+              <div className="space-y-2">
+                <Label htmlFor="nome">Nome completo</Label>
+                <Input id="nome" value={nome} onChange={(e) => setNome(e.target.value)} placeholder="Maria Silva" />
+              </div>
+            )}
             <div className="space-y-2">
-              <Label htmlFor="email">E-mail corporativo</Label>
-              <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="seu@empresa.com" autoComplete="email" />
+              <Label htmlFor="email">E-mail</Label>
+              <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="seu@email.com" autoComplete="email" />
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Senha</Label>
-              <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="current-password" />
+              <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete={tab === "login" ? "current-password" : "new-password"} />
             </div>
-            <Button type="submit" className="w-full h-11 bg-carbon hover:bg-carbon/90 text-carbon-foreground font-semibold">Entrar</Button>
+            <Button type="submit" disabled={busy} className="w-full h-11 bg-carbon hover:bg-carbon/90 text-carbon-foreground font-semibold">
+              {busy ? "Aguarde..." : tab === "login" ? "Entrar" : "Criar conta"}
+            </Button>
           </form>
-
-          <div className="mt-8 pt-6 border-t border-border">
-            <p className="text-xs font-mono uppercase tracking-widest text-muted-foreground mb-3">Demo — escolha um perfil</p>
-            <div className="grid grid-cols-2 gap-3">
-              <button onClick={() => fillAs("admin")} className="p-4 border border-border rounded-xl hover:bg-secondary text-left transition-colors">
-                <Shield className="size-5 mb-2" />
-                <p className="text-sm font-semibold">Administrador</p>
-                <p className="text-xs text-muted-foreground">Visão completa</p>
-              </button>
-              <button onClick={() => fillAs("inspetor")} className="p-4 border border-border rounded-xl hover:bg-secondary text-left transition-colors">
-                <HardHat className="size-5 mb-2" />
-                <p className="text-sm font-semibold">Inspetor</p>
-                <p className="text-xs text-muted-foreground">Foco em inspeção mobile</p>
-              </button>
-            </div>
-          </div>
         </div>
       </div>
     </div>
