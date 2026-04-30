@@ -28,8 +28,8 @@ function LoginPage() {
 
   const quickLogin = async (perfil: "admin" | "inspetor") => {
     const creds = perfil === "admin"
-      ? { email: "admin@adelia.edu.br", password: "admin123", nome: "Administrador", to: "/dashboard" as const }
-      : { email: "inspetor@adelia.edu.br", password: "inspetor123", nome: "Inspetor", to: "/inspecao" as const };
+      ? { email: "admin@adelia.edu.br", password: "Admin@SafeFlow2026", nome: "Administrador", to: "/dashboard" as const }
+      : { email: "inspetor@adelia.edu.br", password: "Inspetor#SafeFlow26", nome: "Inspetor", to: "/inspecao" as const };
     setEmail(creds.email);
     setPassword(creds.password);
     setNome(creds.nome);
