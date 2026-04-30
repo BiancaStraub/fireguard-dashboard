@@ -26,18 +26,28 @@ function LoginPage() {
     if (!loading && user) navigate({ to: "/dashboard" });
   }, [user, loading, navigate]);
 
-  const fillCreds = (perfil: "admin" | "inspetor") => {
-    if (perfil === "admin") {
-      setEmail("admin@adelia.edu.br");
-      setPassword("admin123");
-      setNome("Administrador");
-    } else {
-      setEmail("inspetor@adelia.edu.br");
-      setPassword("inspetor123");
-      setNome("Inspetor");
-    }
+  const quickLogin = async (perfil: "admin" | "inspetor") => {
+    const creds = perfil === "admin"
+      ? { email: "admin@adelia.edu.br", password: "admin123", nome: "Administrador", to: "/dashboard" as const }
+      : { email: "inspetor@adelia.edu.br", password: "inspetor123", nome: "Inspetor", to: "/inspecao" as const };
+    setEmail(creds.email);
+    setPassword(creds.password);
+    setNome(creds.nome);
     setTab("login");
-    toast.info(`Credenciais de ${perfil} preenchidas — clique em Entrar.`);
+    setBusy(true);
+    try {
+      let { error } = await signIn(creds.email, creds.password);
+      if (error) {
+        const { error: errSignup } = await signUp(creds.email, creds.password, creds.nome);
+        if (errSignup && !/registered|exists|já/i.test(errSignup)) { toast.error(errSignup); return; }
+        ({ error } = await signIn(creds.email, creds.password));
+        if (error) { toast.error(error); return; }
+      }
+      toast.success(`Entrando como ${creds.nome}…`);
+      navigate({ to: creds.to });
+    } finally {
+      setBusy(false);
+    }
   };
 
   const submit = async (e: React.FormEvent) => {
@@ -136,14 +146,14 @@ function LoginPage() {
           <div className="mt-8 pt-6 border-t border-dashed border-border">
             <p className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mb-3">Credenciais de Teste</p>
             <div className="grid grid-cols-2 gap-2">
-              <Button type="button" variant="outline" size="sm" onClick={() => fillCreds("admin")} className="h-9 text-xs justify-start">
-                <Shield className="size-3.5" /> Preencher como Administrador
+              <Button type="button" variant="outline" size="sm" disabled={busy} onClick={() => quickLogin("admin")} className="h-9 text-xs justify-start">
+                <Shield className="size-3.5" /> Entrar como Administrador
               </Button>
-              <Button type="button" variant="outline" size="sm" onClick={() => fillCreds("inspetor")} className="h-9 text-xs justify-start">
-                <ClipboardCheck className="size-3.5" /> Preencher como Inspetor
+              <Button type="button" variant="outline" size="sm" disabled={busy} onClick={() => quickLogin("inspetor")} className="h-9 text-xs justify-start">
+                <ClipboardCheck className="size-3.5" /> Entrar como Inspetor
               </Button>
             </div>
-            <p className="text-[10px] text-muted-foreground mt-2 leading-relaxed">As contas de teste são criadas automaticamente no primeiro login.</p>
+            <p className="text-[10px] text-muted-foreground mt-2 leading-relaxed">Login com 1 clique — ideal para apresentação. Admin → Dashboard · Inspetor → Inspeção.</p>
           </div>
         </div>
       </div>
