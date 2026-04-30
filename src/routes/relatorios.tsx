@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { AppShell } from "@/components/fireguard/AppShell";
 import { useQuery } from "@tanstack/react-query";
 import { listInspecoes, listExtintores, type ChecklistItem } from "@/lib/fireguard/services";
@@ -7,6 +7,8 @@ import { FileDown, CheckCircle2, AlertTriangle, User } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { toast } from "sonner";
+import { useEffect } from "react";
+import { useAuth } from "@/lib/fireguard/auth";
 
 export const Route = createFileRoute("/relatorios")({
   head: () => ({ meta: [{ title: "Relatórios — FireGuard" }] }),
@@ -14,6 +16,11 @@ export const Route = createFileRoute("/relatorios")({
 });
 
 function RelatoriosPage() {
+  const { profile, loading } = useAuth();
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (!loading && profile && profile.role !== "admin") navigate({ to: "/inventario" });
+  }, [profile, loading, navigate]);
   const { data: inspecoes = [] } = useQuery({ queryKey: ["inspecoes"], queryFn: () => listInspecoes() });
   const { data: extintores = [] } = useQuery({ queryKey: ["extintores"], queryFn: listExtintores });
   const codigoMap = new Map(extintores.map((e) => [e.id, e.codigo]));

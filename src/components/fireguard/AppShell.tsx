@@ -6,10 +6,10 @@ import { Button } from "@/components/ui/button";
 import { useAuth, type Role } from "@/lib/fireguard/auth";
 
 const NAV: { to: string; label: string; icon: typeof LayoutDashboard; roles: Role[] }[] = [
-  { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard, roles: ["admin", "inspetor"] },
+  { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard, roles: ["admin"] },
   { to: "/inventario", label: "Inventário", icon: Boxes, roles: ["admin", "inspetor"] },
   { to: "/inspecao", label: "Inspeção", icon: ClipboardCheck, roles: ["admin", "inspetor"] },
-  { to: "/relatorios", label: "Relatórios", icon: FileText, roles: ["admin", "inspetor"] },
+  { to: "/relatorios", label: "Relatórios", icon: FileText, roles: ["admin"] },
 ];
 
 export function AppShell({ children }: { children: React.ReactNode }) {

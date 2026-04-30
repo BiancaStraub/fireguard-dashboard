@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Flame } from "lucide-react";
+import { Flame, Shield, ClipboardCheck } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/login")({
@@ -26,6 +26,20 @@ function LoginPage() {
     if (!loading && user) navigate({ to: "/dashboard" });
   }, [user, loading, navigate]);
 
+  const fillCreds = (perfil: "admin" | "inspetor") => {
+    if (perfil === "admin") {
+      setEmail("admin@adelia.edu.br");
+      setPassword("admin123");
+      setNome("Administrador");
+    } else {
+      setEmail("inspetor@adelia.edu.br");
+      setPassword("inspetor123");
+      setNome("Inspetor");
+    }
+    setTab("login");
+    toast.info(`Credenciais de ${perfil} preenchidas — clique em Entrar.`);
+  };
+
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password) return;
@@ -33,7 +47,19 @@ function LoginPage() {
     try {
       if (tab === "login") {
         const { error } = await signIn(email, password);
-        if (error) { toast.error(error); return; }
+        if (error) {
+          // Auto-cria conta de teste se não existir
+          const isTest = email === "admin@adelia.edu.br" || email === "inspetor@adelia.edu.br";
+          if (isTest && /invalid|credenciais|credentials/i.test(error)) {
+            const nomeAuto = email.startsWith("admin") ? "Administrador" : "Inspetor";
+            const { error: errSignup } = await signUp(email, password, nomeAuto);
+            if (errSignup) { toast.error(errSignup); return; }
+            const { error: err2 } = await signIn(email, password);
+            if (err2) { toast.error(err2); return; }
+          } else {
+            toast.error(error); return;
+          }
+        }
         toast.success("Bem-vindo de volta!");
         navigate({ to: "/dashboard" });
       } else {
@@ -106,6 +132,19 @@ function LoginPage() {
               {busy ? "Aguarde..." : tab === "login" ? "Entrar" : "Criar conta"}
             </Button>
           </form>
+
+          <div className="mt-8 pt-6 border-t border-dashed border-border">
+            <p className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mb-3">Credenciais de Teste</p>
+            <div className="grid grid-cols-2 gap-2">
+              <Button type="button" variant="outline" size="sm" onClick={() => fillCreds("admin")} className="h-9 text-xs justify-start">
+                <Shield className="size-3.5" /> Preencher como Administrador
+              </Button>
+              <Button type="button" variant="outline" size="sm" onClick={() => fillCreds("inspetor")} className="h-9 text-xs justify-start">
+                <ClipboardCheck className="size-3.5" /> Preencher como Inspetor
+              </Button>
+            </div>
+            <p className="text-[10px] text-muted-foreground mt-2 leading-relaxed">As contas de teste são criadas automaticamente no primeiro login.</p>
+          </div>
         </div>
       </div>
     </div>
