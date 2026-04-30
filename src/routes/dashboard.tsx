@@ -1,8 +1,9 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { AppShell } from "@/components/fireguard/AppShell";
 import { useQuery } from "@tanstack/react-query";
 import { listExtintores, listInspecoes, statusFor, daysUntil } from "@/lib/fireguard/services";
-import { useMemo } from "react";
+import { useMemo, useEffect } from "react";
+import { useAuth } from "@/lib/fireguard/auth";
 import { AlertTriangle, CheckCircle2, Clock, Boxes, ArrowUpRight } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip } from "recharts";
 
@@ -12,6 +13,11 @@ export const Route = createFileRoute("/dashboard")({
 });
 
 function DashboardPage() {
+  const { profile, loading } = useAuth();
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (!loading && profile && profile.role !== "admin") navigate({ to: "/inventario" });
+  }, [profile, loading, navigate]);
   const { data: extintores = [] } = useQuery({ queryKey: ["extintores"], queryFn: listExtintores });
   const { data: inspecoes = [] } = useQuery({ queryKey: ["inspecoes"], queryFn: () => listInspecoes() });
 
