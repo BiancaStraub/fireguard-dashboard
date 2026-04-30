@@ -132,6 +132,19 @@ function LoginPage() {
               {busy ? "Aguarde..." : tab === "login" ? "Entrar" : "Criar conta"}
             </Button>
           </form>
+
+          <div className="mt-8 pt-6 border-t border-dashed border-border">
+            <p className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mb-3">Credenciais de Teste</p>
+            <div className="grid grid-cols-2 gap-2">
+              <Button type="button" variant="outline" size="sm" onClick={() => fillCreds("admin")} className="h-9 text-xs justify-start">
+                <Shield className="size-3.5" /> Preencher como Administrador
+              </Button>
+              <Button type="button" variant="outline" size="sm" onClick={() => fillCreds("inspetor")} className="h-9 text-xs justify-start">
+                <ClipboardCheck className="size-3.5" /> Preencher como Inspetor
+              </Button>
+            </div>
+            <p className="text-[10px] text-muted-foreground mt-2 leading-relaxed">As contas de teste são criadas automaticamente no primeiro login.</p>
+          </div>
         </div>
       </div>
     </div>
