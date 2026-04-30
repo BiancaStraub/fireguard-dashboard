@@ -15,6 +15,7 @@ import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { z } from "zod";
+import { useAuth } from "@/lib/fireguard/auth";
 
 const searchSchema = z.object({ codigo: z.string().optional() });
 
@@ -38,6 +39,14 @@ function CadastroPage() {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const isNew = id === "novo";
+  const { profile, loading } = useAuth();
+
+  useEffect(() => {
+    if (!loading && profile && profile.role !== "admin") {
+      toast.error("Acesso restrito a administradores.");
+      navigate({ to: "/inventario" });
+    }
+  }, [profile, loading, navigate]);
 
   const { data: existing } = useQuery({
     queryKey: ["extintor", id],
