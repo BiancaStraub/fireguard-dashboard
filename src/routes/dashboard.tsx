@@ -56,17 +56,6 @@ function DashboardPage() {
 
   return (
     <AppShell>
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
-        <div>
-          <p className="text-xs font-mono font-medium text-muted-foreground uppercase tracking-widest mb-1">Sistema de Monitoramento</p>
-          <h1 className="text-3xl font-semibold tracking-tight">Status da Rede de Proteção</h1>
-        </div>
-        <div className="flex gap-3">
-          <Link to="/inventario" className="px-4 py-2 text-sm font-semibold border border-border rounded-lg hover:bg-secondary transition-colors shadow-soft bg-card">Ver Inventário</Link>
-          <Link to="/inspecao" className="px-4 py-2 text-sm font-semibold bg-carbon text-carbon-foreground rounded-lg hover:bg-carbon/90 transition-colors shadow-soft">Nova Inspeção</Link>
-        </div>
-      </div>
-
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
         <KpiCard label="Total de Ativos" value={kpis.total} icon={Boxes} accent="default" hint="Patrimônio cadastrado" />
         <KpiCard label="Vencidos" value={kpis.vencidos} icon={AlertTriangle} accent="security" hint="Ação imediata" />

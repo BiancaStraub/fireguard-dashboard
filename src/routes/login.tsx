@@ -43,7 +43,6 @@ function LoginPage() {
         ({ error } = await signIn(creds.email, creds.password));
         if (error) { toast.error(error); return; }
       }
-      toast.success(`Entrando como ${creds.nome}…`);
       navigate({ to: creds.to });
     } finally {
       setBusy(false);
