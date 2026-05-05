@@ -28,7 +28,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   if (loading || !user) return null;
   const role: Role = profile?.role ?? "inspetor";
   const items = NAV.filter((n) => n.roles.includes(role));
-  const nome = profile?.nome ?? user.email ?? "Usuário";
+  const nome = role === "admin" ? "Administrador" : (profile?.nome ?? user.email ?? "Usuário");
   const initials = nome.split(" ").map((n) => n[0]).slice(0, 2).join("").toUpperCase();
   const hoje = new Date().toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long", year: "numeric" });
 
