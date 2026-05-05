@@ -4,6 +4,7 @@ import type { Database } from "@/integrations/supabase/types";
 export type ExtintorRow = Database["public"]["Tables"]["extintores"]["Row"];
 export type ExtintorInsert = Database["public"]["Tables"]["extintores"]["Insert"];
 export type InspecaoRow = Database["public"]["Tables"]["inspecoes"]["Row"];
+export type EmpresaRow = Database["public"]["Tables"]["empresas"]["Row"];
 
 export type ChecklistItem = { key: string; label: string; conforme: boolean };
 
@@ -39,6 +40,46 @@ export async function listExtintores() {
     .order("created_at", { ascending: false });
   if (error) throw error;
   return data ?? [];
+}
+
+export async function listExtintoresByEmpresa(empresaId: string) {
+  const { data, error } = await supabase
+    .from("extintores")
+    .select("*")
+    .eq("empresa_id", empresaId)
+    .order("codigo", { ascending: true });
+  if (error) throw error;
+  return data ?? [];
+}
+
+export async function listEmpresas() {
+  const { data, error } = await supabase
+    .from("empresas")
+    .select("*")
+    .order("nome", { ascending: true });
+  if (error) throw error;
+  return data ?? [];
+}
+
+export async function getEmpresa(id: string) {
+  const { data, error } = await supabase
+    .from("empresas")
+    .select("*")
+    .eq("id", id)
+    .maybeSingle();
+  if (error) throw error;
+  return data;
+}
+
+export async function countExtintoresPorEmpresa() {
+  const { data, error } = await supabase.from("extintores").select("empresa_id");
+  if (error) throw error;
+  const map = new Map<string, number>();
+  for (const r of data ?? []) {
+    if (!r.empresa_id) continue;
+    map.set(r.empresa_id, (map.get(r.empresa_id) ?? 0) + 1);
+  }
+  return map;
 }
 
 export async function getExtintor(id: string) {
