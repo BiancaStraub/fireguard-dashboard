@@ -1,15 +1,17 @@
 import { Link, useLocation, useNavigate } from "@tanstack/react-router";
-import { Flame, LayoutDashboard, Boxes, ClipboardCheck, FileText, LogOut, Menu, X } from "lucide-react";
+import { Flame, LayoutDashboard, Building2, Wrench, ClipboardCheck, CalendarClock, BellRing, LogOut, Menu, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useAuth, type Role } from "@/lib/fireguard/auth";
 
 const NAV: { to: string; label: string; icon: typeof LayoutDashboard; roles: Role[] }[] = [
-  { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard, roles: ["admin"] },
-  { to: "/inventario", label: "Inventário", icon: Boxes, roles: ["admin", "inspetor"] },
-  { to: "/inspecao", label: "Inspeção", icon: ClipboardCheck, roles: ["admin", "inspetor"] },
-  { to: "/relatorios", label: "Relatórios", icon: FileText, roles: ["admin"] },
+  { to: "/dashboard", label: "Visão Geral", icon: LayoutDashboard, roles: ["admin"] },
+  { to: "/empresas", label: "Extintores", icon: Building2, roles: ["admin", "inspetor"] },
+  { to: "/relatorios", label: "Manutenções", icon: Wrench, roles: ["admin"] },
+  { to: "/inspecao", label: "Inspeções", icon: ClipboardCheck, roles: ["admin", "inspetor"] },
+  { to: "/dashboard", label: "Vencimentos", icon: CalendarClock, roles: ["admin"] },
+  { to: "/dashboard", label: "Alertas", icon: BellRing, roles: ["admin"] },
 ];
 
 export function AppShell({ children }: { children: React.ReactNode }) {
@@ -28,72 +30,80 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const items = NAV.filter((n) => n.roles.includes(role));
   const nome = profile?.nome ?? user.email ?? "Usuário";
   const initials = nome.split(" ").map((n) => n[0]).slice(0, 2).join("").toUpperCase();
+  const hoje = new Date().toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long", year: "numeric" });
 
   return (
-    <div className="min-h-dvh bg-background">
-      <nav className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
-        <div className="max-w-7xl mx-auto px-4 md:px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-6 md:gap-10">
-            <Link to="/dashboard" className="flex items-center gap-2.5">
-              <div className="size-9 bg-carbon rounded-lg flex items-center justify-center shadow-soft">
-                <Flame className="size-5 text-security" strokeWidth={2.5} />
-              </div>
-              <span className="text-xl font-semibold tracking-tight uppercase">FireGuard</span>
+    <div className="min-h-dvh bg-background flex">
+      {/* Sidebar desktop */}
+      <aside className="hidden md:flex w-20 shrink-0 flex-col items-center py-5 gap-2 bg-card border-r border-border sticky top-0 h-dvh">
+        <Link to="/dashboard" className="size-11 bg-security rounded-xl flex items-center justify-center shadow-glow-red mb-3">
+          <Flame className="size-6 text-security-foreground" strokeWidth={2.5} />
+        </Link>
+        {items.map((n, i) => {
+          const active = location.pathname.startsWith(n.to);
+          return (
+            <Link key={`${n.to}-${i}`} to={n.to} title={n.label} className={cn(
+              "size-11 rounded-xl flex items-center justify-center transition-colors",
+              active ? "bg-security/15 text-security" : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+            )}>
+              <n.icon className="size-5" />
             </Link>
-            <div className="hidden md:flex items-center gap-1">
-              {items.map((n) => {
-                const active = location.pathname.startsWith(n.to);
-                return (
-                  <Link key={n.to} to={n.to} className={cn(
-                    "px-3.5 py-2 text-sm font-medium rounded-md transition-colors flex items-center gap-2",
-                    active ? "bg-secondary text-foreground" : "text-muted-foreground hover:text-foreground"
-                  )}>
-                    <n.icon className="size-4" />
-                    {n.label}
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="hidden sm:block text-right leading-tight">
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{role === "admin" ? "Administrador" : "Inspetor"}</p>
-              <p className="text-sm font-semibold">{nome}</p>
-            </div>
-            <div className="size-10 rounded-full bg-carbon text-carbon-foreground flex items-center justify-center font-semibold text-sm">
-              {initials}
-            </div>
-            <Button variant="ghost" size="icon" className="hidden md:inline-flex" onClick={async () => { await signOut(); navigate({ to: "/login" }); }}>
-              <LogOut className="size-4" />
-            </Button>
-            <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setOpen(!open)}>
+          );
+        })}
+        <div className="mt-auto">
+          <button onClick={async () => { await signOut(); navigate({ to: "/login" }); }} className="size-11 rounded-xl flex items-center justify-center text-muted-foreground hover:bg-secondary hover:text-foreground">
+            <LogOut className="size-5" />
+          </button>
+        </div>
+      </aside>
+
+      <div className="flex-1 min-w-0 flex flex-col">
+        <header className="sticky top-0 z-40 h-16 bg-card/80 backdrop-blur-md border-b border-border px-4 md:px-8 flex items-center justify-between">
+          <div className="flex items-center gap-3 md:hidden">
+            <Button variant="ghost" size="icon" onClick={() => setOpen(!open)}>
               {open ? <X className="size-5" /> : <Menu className="size-5" />}
             </Button>
+            <span className="font-semibold uppercase tracking-tight">FireGuard</span>
           </div>
-        </div>
+          <div className="hidden md:block">
+            <p className="text-xs font-mono uppercase tracking-widest text-muted-foreground">FireGuard · NBR 13485 / 12693</p>
+            <p className="text-sm font-medium capitalize">{hoje}</p>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="text-right leading-tight">
+              <p className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">{role === "admin" ? "Administrador" : "Inspetor"}</p>
+              <p className="text-sm font-semibold">{nome}</p>
+            </div>
+            <div className="size-10 rounded-full bg-security text-security-foreground flex items-center justify-center font-semibold text-sm">
+              {initials}
+            </div>
+          </div>
+        </header>
+
         {open && (
-          <div className="md:hidden border-t border-border bg-background">
+          <div className="md:hidden border-b border-border bg-card">
             <div className="px-4 py-3 flex flex-col gap-1">
-              {items.map((n) => {
+              {items.map((n, i) => {
                 const active = location.pathname.startsWith(n.to);
                 return (
-                  <Link key={n.to} to={n.to} className={cn(
+                  <Link key={`${n.to}-${i}`} to={n.to} className={cn(
                     "px-3 py-2.5 text-sm font-medium rounded-md flex items-center gap-3",
-                    active ? "bg-secondary text-foreground" : "text-muted-foreground"
+                    active ? "bg-security/15 text-security" : "text-muted-foreground"
                   )}>
                     <n.icon className="size-4" />
                     {n.label}
                   </Link>
                 );
               })}
-              <button onClick={async () => { await signOut(); navigate({ to: "/login" }); }} className="px-3 py-2.5 text-sm font-medium text-muted-foreground flex items-center gap-3">
+              <button onClick={async () => { await signOut(); navigate({ to: "/login" }); }} className="px-3 py-2.5 text-sm font-medium text-muted-foreground flex items-center gap-3 text-left">
                 <LogOut className="size-4" />Sair
               </button>
             </div>
           </div>
         )}
-      </nav>
-      <main className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8">{children}</main>
+
+        <main className="flex-1 px-4 md:px-8 py-6 md:py-8 max-w-[1400px] w-full mx-auto">{children}</main>
+      </div>
     </div>
   );
 }
