@@ -1,10 +1,10 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { AppShell } from "@/components/fireguard/AppShell";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { listExtintores, deleteExtintor, getExtintorByCodigo, statusFor } from "@/lib/fireguard/services";
+import { listExtintores, listExtintoresByEmpresa, getEmpresa, deleteExtintor, getExtintorByCodigo, statusFor } from "@/lib/fireguard/services";
 import { useAuth } from "@/lib/fireguard/auth";
 import { useMemo, useState } from "react";
-import { Plus, QrCode, Search, Pencil, Trash2, ClipboardCheck } from "lucide-react";
+import { Plus, QrCode, Search, Pencil, Trash2, ClipboardCheck, ArrowLeft, Building2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -13,9 +13,13 @@ import { QrScanner } from "@/components/fireguard/QrScanner";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { z } from "zod";
+
+const searchSchema = z.object({ empresa: z.string().optional() });
 
 export const Route = createFileRoute("/inventario")({
   head: () => ({ meta: [{ title: "Inventário — FireGuard" }] }),
+  validateSearch: (s) => searchSchema.parse(s),
   component: InventarioPage,
 });
 
@@ -23,11 +27,20 @@ function InventarioPage() {
   const { profile } = useAuth();
   const isAdmin = profile?.role === "admin";
   const navigate = useNavigate();
+  const { empresa: empresaId } = Route.useSearch();
   const qc = useQueryClient();
-  const { data: extintores = [], isLoading } = useQuery({ queryKey: ["extintores"], queryFn: listExtintores });
+  const { data: extintores = [], isLoading } = useQuery({
+    queryKey: ["extintores", empresaId ?? "all"],
+    queryFn: () => (empresaId ? listExtintoresByEmpresa(empresaId) : listExtintores()),
+  });
+  const { data: empresa } = useQuery({
+    queryKey: ["empresa", empresaId],
+    queryFn: () => (empresaId ? getEmpresa(empresaId) : Promise.resolve(null)),
+    enabled: !!empresaId,
+  });
   const remove = useMutation({
     mutationFn: (id: string) => deleteExtintor(id),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["extintores"] }); toast.success("Extintor removido"); },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["extintores"] }); qc.invalidateQueries({ queryKey: ["empresas-counts"] }); toast.success("Extintor removido"); },
     onError: (e: Error) => toast.error(e.message),
   });
 
@@ -68,18 +81,25 @@ function InventarioPage() {
 
   return (
     <AppShell>
+      {empresaId && (
+        <button onClick={() => navigate({ to: "/empresas" })} className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1 mb-4">
+          <ArrowLeft className="size-4" /> Voltar às empresas
+        </button>
+      )}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
         <div>
-          <p className="text-xs font-mono uppercase tracking-widest text-muted-foreground mb-1">Patrimônio</p>
-          <h1 className="text-3xl font-semibold tracking-tight">Inventário de Extintores</h1>
-          <p className="text-sm text-muted-foreground mt-1">{list.length} de {extintores.length} ativos</p>
+          <p className="text-xs font-mono uppercase tracking-widest text-muted-foreground mb-1 flex items-center gap-2">
+            {empresa && <Building2 className="size-3" />}{empresa ? empresa.nome : "Patrimônio"}
+          </p>
+          <h1 className="text-3xl font-semibold tracking-tight">Inventário Detalhado</h1>
+          <p className="text-sm text-muted-foreground mt-1">{list.length} de {extintores.length} equipamentos · NBR 13485 / 12693</p>
         </div>
         <div className="flex flex-col sm:flex-row gap-3">
           <Button variant="outline" onClick={() => setScanOpen(true)} className="h-11">
             <QrCode className="size-4" /> Escanear Extintor
           </Button>
           {isAdmin && (
-            <Button onClick={() => navigate({ to: "/cadastro/$id", params: { id: "novo" } })} className="h-11 bg-carbon hover:bg-carbon/90 text-carbon-foreground">
+            <Button onClick={() => navigate({ to: "/cadastro/$id", params: { id: "novo" } })} className="h-11 bg-security hover:bg-security/90 text-security-foreground">
               <Plus className="size-4" /> Cadastrar Novo
             </Button>
           )}
@@ -125,9 +145,11 @@ function InventarioPage() {
           <thead>
             <tr className="text-[11px] font-mono text-muted-foreground uppercase tracking-wider border-b border-border bg-secondary/30">
               <th className="px-6 py-3 font-medium">Código</th>
-              <th className="px-6 py-3 font-medium">Tipo / Classe</th>
+              <th className="px-6 py-3 font-medium">Tipo / Capacidade</th>
               <th className="px-6 py-3 font-medium">Localização</th>
-              <th className="px-6 py-3 font-medium">Validade</th>
+              <th className="px-6 py-3 font-medium">Recarga</th>
+              <th className="px-6 py-3 font-medium">Venc. TH</th>
+              <th className="px-6 py-3 font-medium">Agrup. Risco</th>
               <th className="px-6 py-3 font-medium">Status</th>
               <th className="px-6 py-3 font-medium text-right">Ações</th>
             </tr>
@@ -137,11 +159,16 @@ function InventarioPage() {
               <tr key={e.id} className="hover:bg-secondary/30 transition-colors">
                 <td className="px-6 py-4 text-sm font-mono font-medium">{e.codigo}</td>
                 <td className="px-6 py-4">
-                  <p className="text-sm font-semibold">{e.tipo}</p>
+                  <p className="text-sm font-semibold">{e.tipo} {e.capacidade ?? ""}</p>
                   <p className="text-xs text-muted-foreground">Classe {e.classes.join("/")}</p>
                 </td>
-                <td className="px-6 py-4 text-sm text-muted-foreground">{e.setor} · {e.predio}, {e.andar}</td>
-                <td className="px-6 py-4 text-sm tabular-nums">{format(new Date(e.validade_carga), "dd/MM/yyyy")}</td>
+                <td className="px-6 py-4 text-sm">
+                  <p className="font-medium">{e.localizacao ?? e.setor}</p>
+                  <p className="text-xs text-muted-foreground">{e.predio} · {e.andar}</p>
+                </td>
+                <td className="px-6 py-4 text-sm tabular-nums text-muted-foreground">{e.data_recarga ? format(new Date(e.data_recarga), "dd/MM/yyyy") : "—"}</td>
+                <td className="px-6 py-4 text-sm tabular-nums">{e.teste_hidrostatico ? format(new Date(e.teste_hidrostatico), "dd/MM/yyyy") : format(new Date(e.validade_carga), "dd/MM/yyyy")}</td>
+                <td className="px-6 py-4 text-xs text-muted-foreground">{e.agrupamento_risco ?? "—"}</td>
                 <td className="px-6 py-4"><StatusBadge status={statusFor(e)} /></td>
                 <td className="px-6 py-4">
                   <div className="flex items-center justify-end gap-1">
@@ -161,7 +188,7 @@ function InventarioPage() {
               </tr>
             ))}
             {list.length === 0 && (
-              <tr><td colSpan={6} className="text-center py-12 text-muted-foreground text-sm">{isLoading ? "Carregando..." : "Nenhum extintor cadastrado."}</td></tr>
+              <tr><td colSpan={8} className="text-center py-12 text-muted-foreground text-sm">{isLoading ? "Carregando..." : "Nenhum extintor cadastrado."}</td></tr>
             )}
           </tbody>
         </table>
@@ -174,13 +201,15 @@ function InventarioPage() {
             <div className="flex items-start justify-between gap-3 mb-3">
               <div>
                 <p className="font-mono text-xs text-muted-foreground">{e.codigo}</p>
-                <p className="font-semibold">{e.tipo} · Classe {e.classes.join("/")}</p>
+                <p className="font-semibold">{e.tipo} {e.capacidade ?? ""} · Classe {e.classes.join("/")}</p>
               </div>
               <StatusBadge status={statusFor(e)} />
             </div>
             <div className="text-xs text-muted-foreground space-y-1 mb-4">
-              <p>{e.setor} · {e.predio}, {e.andar}</p>
-              <p>Validade: <span className="font-mono">{format(new Date(e.validade_carga), "dd/MM/yyyy")}</span></p>
+              <p>{e.localizacao ?? e.setor} · {e.predio}, {e.andar}</p>
+              {e.data_recarga && <p>Recarga: <span className="font-mono">{format(new Date(e.data_recarga), "dd/MM/yyyy")}</span></p>}
+              <p>Venc. TH: <span className="font-mono">{e.teste_hidrostatico ? format(new Date(e.teste_hidrostatico), "dd/MM/yyyy") : format(new Date(e.validade_carga), "dd/MM/yyyy")}</span></p>
+              {e.agrupamento_risco && <p className="italic">{e.agrupamento_risco}</p>}
             </div>
             <div className="flex gap-2">
               <Button size="sm" variant="outline" className="flex-1" onClick={() => navigate({ to: "/inspecao", search: { id: e.id } as never })}>

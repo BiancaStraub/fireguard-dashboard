@@ -114,6 +114,10 @@
   --border: oklch(1 0 0 / 0.1);
   --input: oklch(1 0 0 / 0.15);
   --ring: oklch(0.7 0 0);
+  --carbon: oklch(0.22 0 0);
+  --carbon-foreground: oklch(0.985 0 0);
+  --security: oklch(0.62 0.25 27);
+  --security-foreground: oklch(0.985 0 0);
 }
 
 @layer base {

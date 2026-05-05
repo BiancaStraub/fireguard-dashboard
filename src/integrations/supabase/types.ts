@@ -14,15 +14,47 @@ export type Database = {
   }
   public: {
     Tables: {
+      empresas: {
+        Row: {
+          cnpj: string
+          created_at: string
+          endereco: string
+          id: string
+          nome: string
+          updated_at: string
+        }
+        Insert: {
+          cnpj: string
+          created_at?: string
+          endereco: string
+          id?: string
+          nome: string
+          updated_at?: string
+        }
+        Update: {
+          cnpj?: string
+          created_at?: string
+          endereco?: string
+          id?: string
+          nome?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       extintores: {
         Row: {
+          agrupamento_risco: string | null
           altura_cm: number | null
           andar: string
+          capacidade: string | null
           classes: string[]
           codigo: string
           created_at: string
+          data_recarga: string | null
+          empresa_id: string | null
           fabricante: string | null
           id: string
+          localizacao: string | null
           predio: string
           setor: string
           status: string
@@ -32,13 +64,18 @@ export type Database = {
           validade_carga: string
         }
         Insert: {
+          agrupamento_risco?: string | null
           altura_cm?: number | null
           andar: string
+          capacidade?: string | null
           classes?: string[]
           codigo: string
           created_at?: string
+          data_recarga?: string | null
+          empresa_id?: string | null
           fabricante?: string | null
           id?: string
+          localizacao?: string | null
           predio: string
           setor: string
           status?: string
@@ -48,13 +85,18 @@ export type Database = {
           validade_carga: string
         }
         Update: {
+          agrupamento_risco?: string | null
           altura_cm?: number | null
           andar?: string
+          capacidade?: string | null
           classes?: string[]
           codigo?: string
           created_at?: string
+          data_recarga?: string | null
+          empresa_id?: string | null
           fabricante?: string | null
           id?: string
+          localizacao?: string | null
           predio?: string
           setor?: string
           status?: string
@@ -63,7 +105,15 @@ export type Database = {
           updated_at?: string
           validade_carga?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "extintores_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       inspecoes: {
         Row: {

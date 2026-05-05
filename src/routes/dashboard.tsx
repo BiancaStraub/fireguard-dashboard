@@ -16,7 +16,7 @@ function DashboardPage() {
   const { profile, loading } = useAuth();
   const navigate = useNavigate();
   useEffect(() => {
-    if (!loading && profile && profile.role !== "admin") navigate({ to: "/inventario" });
+    if (!loading && profile && profile.role !== "admin") navigate({ to: "/empresas" });
   }, [profile, loading, navigate]);
   const { data: extintores = [] } = useQuery({ queryKey: ["extintores"], queryFn: listExtintores });
   const { data: inspecoes = [] } = useQuery({ queryKey: ["inspecoes"], queryFn: () => listInspecoes() });
