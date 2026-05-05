@@ -35,11 +35,15 @@ export const Route = createRootRoute({
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "FireGuard — Gestão e Inspeção de Extintores" },
       { name: "description", content: "Sistema corporativo de gestão, inspeção e conformidade de extintores de incêndio (NR-23)." },
-      { property: "og:title", content: "FireGuard — Gestão de Extintores" },
-      { property: "og:description", content: "Painel de controle, inspeção mobile e relatórios de conformidade." },
+      { property: "og:title", content: "FireGuard — Gestão e Inspeção de Extintores" },
+      { property: "og:description", content: "Sistema corporativo de gestão, inspeção e conformidade de extintores de incêndio (NR-23)." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:title", content: "FireGuard — Gestão e Inspeção de Extintores" },
+      { name: "twitter:description", content: "Sistema corporativo de gestão, inspeção e conformidade de extintores de incêndio (NR-23)." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/de453641-bd54-4720-b325-cfe20de0dcbc/id-preview-c4fad11a--f2650539-6304-4ba8-9ec6-aba0f161b6ac.lovable.app-1778018642542.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/de453641-bd54-4720-b325-cfe20de0dcbc/id-preview-c4fad11a--f2650539-6304-4ba8-9ec6-aba0f161b6ac.lovable.app-1778018642542.png" },
     ],
     links: [
       {
