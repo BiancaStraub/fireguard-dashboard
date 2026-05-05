@@ -69,7 +69,6 @@ function LoginPage() {
             toast.error(error); return;
           }
         }
-        toast.success("Bem-vindo de volta!");
         navigate({ to: "/dashboard" });
       } else {
         if (!nome) { toast.error("Informe seu nome"); return; }
