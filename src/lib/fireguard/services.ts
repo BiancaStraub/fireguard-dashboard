@@ -17,18 +17,38 @@ export type ExtStatusBadge =
   | "manutencao"
   | "descartado";
 
-export function daysUntil(iso: string) {
-  const ms = new Date(iso).getTime() - Date.now();
+export function parseDateBR(input: string | null | undefined): Date | null {
+  if (!input) return null;
+  // ISO format YYYY-MM-DD
+  const iso = input.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (iso) return new Date(Date.UTC(+iso[1], +iso[2] - 1, +iso[3]));
+  // BR format DD/MM/YYYY or DD-MM-YYYY
+  const dmy = input.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/);
+  if (dmy) {
+    let y = parseInt(dmy[3]);
+    if (y < 100) y += 2000;
+    return new Date(Date.UTC(y, parseInt(dmy[2]) - 1, parseInt(dmy[1])));
+  }
+  const fallback = new Date(input);
+  return isNaN(fallback.getTime()) ? null : fallback;
+}
+
+export function daysUntil(input: string) {
+  const target = parseDateBR(input);
+  if (!target) return 0;
+  const now = new Date();
+  const today = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+  const ms = target.getTime() - today;
   return Math.ceil(ms / (1000 * 60 * 60 * 24));
 }
 
 export function statusFor(e: ExtintorRow): ExtStatusBadge {
   if (e.status === "Descartado") return "descartado";
   if (e.status === "Em Manutenção") return "manutencao";
-  const d = daysUntil(e.validade_carga);
+  // Use teste_hidrostatico (Vencimento TH) when available; fallback to validade_carga
+  const ref = e.teste_hidrostatico ?? e.validade_carga;
+  const d = daysUntil(ref);
   if (d < 0) return "vencido";
-  if (d <= 7) return "vencendo7";
-  if (d <= 15) return "vencendo15";
   if (d <= 30) return "vencendo30";
   return "ok";
 }
