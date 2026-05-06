@@ -96,7 +96,7 @@ function LoginPage() {
           <h1 className="text-4xl font-semibold tracking-tight leading-tight">Conformidade NR-23 em tempo real, na palma da mão.</h1>
           <p className="text-zinc-400 leading-relaxed">Gestão de patrimônio, inspeções via QR Code e relatórios de auditoria — tudo em um único painel.</p>
         </div>
-        <p className="text-xs font-mono text-zinc-500 relative z-10">O primeiro usuário cadastrado vira <span className="text-safe">admin</span> automaticamente.</p>
+        <div className="relative z-10" />
         <div className="absolute -bottom-32 -right-32 size-96 rounded-full bg-security/10 blur-3xl" />
       </div>
 
