@@ -10,8 +10,8 @@ const NAV: { to: string; label: string; icon: typeof LayoutDashboard; roles: Rol
   { to: "/empresas", label: "Extintores", icon: Building2, roles: ["admin", "inspetor"] },
   { to: "/relatorios", label: "Manutenções", icon: Wrench, roles: ["admin"] },
   { to: "/inspecao", label: "Inspeções", icon: ClipboardCheck, roles: ["admin", "inspetor"] },
-  { to: "/dashboard", label: "Vencimentos", icon: CalendarClock, roles: ["admin"] },
-  { to: "/dashboard", label: "Alertas", icon: BellRing, roles: ["admin"] },
+  { to: "/vencimentos", label: "Vencimentos", icon: CalendarClock, roles: ["admin"] },
+  { to: "/alertas", label: "Alertas", icon: BellRing, roles: ["admin"] },
 ];
 
 export function AppShell({ children }: { children: React.ReactNode }) {

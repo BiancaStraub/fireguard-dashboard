@@ -14,6 +14,50 @@ export type Database = {
   }
   public: {
     Tables: {
+      alertas: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          extintor_id: string | null
+          id: string
+          mensagem: string
+          prioridade: string
+          resolvido: boolean
+          titulo: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          extintor_id?: string | null
+          id?: string
+          mensagem: string
+          prioridade?: string
+          resolvido?: boolean
+          titulo: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          extintor_id?: string | null
+          id?: string
+          mensagem?: string
+          prioridade?: string
+          resolvido?: boolean
+          titulo?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "alertas_extintor_id_fkey"
+            columns: ["extintor_id"]
+            isOneToOne: false
+            referencedRelation: "extintores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       empresas: {
         Row: {
           cnpj: string
