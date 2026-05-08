@@ -97,8 +97,10 @@ export type Database = {
           data_recarga: string | null
           empresa_id: string | null
           fabricante: string | null
+          fotos: string[]
           id: string
           localizacao: string | null
+          observacoes: string | null
           predio: string
           setor: string
           status: string
@@ -118,8 +120,10 @@ export type Database = {
           data_recarga?: string | null
           empresa_id?: string | null
           fabricante?: string | null
+          fotos?: string[]
           id?: string
           localizacao?: string | null
+          observacoes?: string | null
           predio: string
           setor: string
           status?: string
@@ -139,8 +143,10 @@ export type Database = {
           data_recarga?: string | null
           empresa_id?: string | null
           fabricante?: string | null
+          fotos?: string[]
           id?: string
           localizacao?: string | null
+          observacoes?: string | null
           predio?: string
           setor?: string
           status?: string
@@ -161,10 +167,12 @@ export type Database = {
       }
       inspecoes: {
         Row: {
+          anexos: Json
           conforme: boolean
           created_at: string
           data: string
           extintor_id: string
+          fotos: string[]
           id: string
           inspetor_id: string
           inspetor_nome: string
@@ -172,10 +180,12 @@ export type Database = {
           observacoes: string | null
         }
         Insert: {
+          anexos?: Json
           conforme?: boolean
           created_at?: string
           data?: string
           extintor_id: string
+          fotos?: string[]
           id?: string
           inspetor_id: string
           inspetor_nome: string
@@ -183,10 +193,12 @@ export type Database = {
           observacoes?: string | null
         }
         Update: {
+          anexos?: Json
           conforme?: boolean
           created_at?: string
           data?: string
           extintor_id?: string
+          fotos?: string[]
           id?: string
           inspetor_id?: string
           inspetor_nome?: string
@@ -207,6 +219,7 @@ export type Database = {
         Row: {
           created_at: string
           email: string
+          empresa_id: string | null
           id: string
           nome: string
           updated_at: string
@@ -214,6 +227,7 @@ export type Database = {
         Insert: {
           created_at?: string
           email: string
+          empresa_id?: string | null
           id: string
           nome: string
           updated_at?: string
@@ -221,11 +235,20 @@ export type Database = {
         Update: {
           created_at?: string
           email?: string
+          empresa_id?: string | null
           id?: string
           nome?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
@@ -262,7 +285,7 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "admin" | "inspetor"
+      app_role: "admin" | "inspetor" | "subadmin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -390,7 +413,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "inspetor"],
+      app_role: ["admin", "inspetor", "subadmin"],
     },
   },
 } as const
