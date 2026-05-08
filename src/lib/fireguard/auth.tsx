@@ -2,13 +2,14 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from "
 import { supabase } from "@/integrations/supabase/client";
 import type { Session, User } from "@supabase/supabase-js";
 
-export type Role = "admin" | "inspetor";
+export type Role = "admin" | "subadmin" | "inspetor";
 
 export interface Profile {
   id: string;
   nome: string;
   email: string;
   role: Role | null;
+  empresa_id?: string | null;
 }
 
 interface AuthCtx {
@@ -54,7 +55,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const loadProfile = async (userId: string, email: string) => {
     const [{ data: prof }, { data: roleRow }] = await Promise.all([
-      supabase.from("profiles").select("id, nome, email").eq("id", userId).maybeSingle(),
+      supabase.from("profiles").select("id, nome, email, empresa_id").eq("id", userId).maybeSingle(),
       supabase.from("user_roles").select("role").eq("user_id", userId).maybeSingle(),
     ]);
     setProfile({
@@ -62,6 +63,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       nome: prof?.nome ?? email.split("@")[0],
       email: prof?.email ?? email,
       role: (roleRow?.role as Role | undefined) ?? null,
+      empresa_id: (prof as { empresa_id?: string | null } | null)?.empresa_id ?? null,
     });
   };
 
