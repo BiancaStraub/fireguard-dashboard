@@ -15,7 +15,10 @@ import { toast } from "sonner";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { z } from "zod";
 
-const searchSchema = z.object({ empresa: z.string().optional() });
+const searchSchema = z.object({
+  empresa: z.string().optional(),
+  status: z.enum(["vencidos", "vencendo", "ok"]).optional(),
+});
 
 export const Route = createFileRoute("/inventario")({
   head: () => ({ meta: [{ title: "Inventário — FireGuard" }] }),
@@ -27,7 +30,7 @@ function InventarioPage() {
   const { profile } = useAuth();
   const isAdmin = profile?.role === "admin";
   const navigate = useNavigate();
-  const { empresa: empresaId } = Route.useSearch();
+  const { empresa: empresaId, status: statusInit } = Route.useSearch();
   const qc = useQueryClient();
   const { data: extintores = [], isLoading } = useQuery({
     queryKey: ["extintores", empresaId ?? "all"],
@@ -47,7 +50,7 @@ function InventarioPage() {
   const [q, setQ] = useState("");
   const [tipo, setTipo] = useState("todos");
   const [setor, setSetor] = useState("todos");
-  const [statusF, setStatusF] = useState("todos");
+  const [statusF, setStatusF] = useState<string>(statusInit ?? "todos");
   const [scanOpen, setScanOpen] = useState(false);
 
   const setores = useMemo(() => Array.from(new Set(extintores.map((e) => e.setor))), [extintores]);
