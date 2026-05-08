@@ -7,6 +7,7 @@ export type InspecaoRow = Database["public"]["Tables"]["inspecoes"]["Row"];
 export type EmpresaRow = Database["public"]["Tables"]["empresas"]["Row"];
 
 export type ChecklistItem = { key: string; label: string; conforme: boolean };
+export type Anexo = { name: string; url: string; type?: string };
 
 export type ExtStatusBadge =
   | "vencido"
@@ -176,3 +177,49 @@ export const CHECKLIST_ITEMS = [
   { key: "sinalizacao", label: "Sinalização correta e visível?" },
   { key: "mangueira", label: "Mangueira/Bico em bom estado?" },
 ] as const;
+
+// ===================== Storage helpers =====================
+
+export async function uploadAnexo(file: File, prefix = "anexos"): Promise<Anexo> {
+  const ext = file.name.split(".").pop() ?? "bin";
+  const path = `${prefix}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+  const { error } = await supabase.storage.from("anexos").upload(path, file, { contentType: file.type, upsert: false });
+  if (error) throw error;
+  const { data } = supabase.storage.from("anexos").getPublicUrl(path);
+  return { name: file.name, url: data.publicUrl, type: file.type };
+}
+
+// ===================== Equipe / RBAC =====================
+
+export type TeamMember = {
+  id: string;
+  nome: string;
+  email: string;
+  empresa_id: string | null;
+  role: "admin" | "subadmin" | "inspetor" | null;
+};
+
+export async function listTeam(): Promise<TeamMember[]> {
+  const { data: profs, error } = await supabase
+    .from("profiles")
+    .select("id, nome, email, empresa_id")
+    .order("nome");
+  if (error) throw error;
+  const { data: roles } = await supabase.from("user_roles").select("user_id, role");
+  const roleMap = new Map((roles ?? []).map((r) => [r.user_id, r.role as TeamMember["role"]]));
+  return (profs ?? []).map((p) => ({
+    id: p.id,
+    nome: p.nome,
+    email: p.email,
+    empresa_id: (p as { empresa_id?: string | null }).empresa_id ?? null,
+    role: roleMap.get(p.id) ?? null,
+  }));
+}
+
+export async function updateMemberRole(userId: string, role: "admin" | "subadmin" | "inspetor", empresaId: string | null) {
+  await supabase.from("user_roles").delete().eq("user_id", userId);
+  const { error: rErr } = await supabase.from("user_roles").insert({ user_id: userId, role });
+  if (rErr) throw rErr;
+  const { error: pErr } = await supabase.from("profiles").update({ empresa_id: empresaId }).eq("id", userId);
+  if (pErr) throw pErr;
+}
