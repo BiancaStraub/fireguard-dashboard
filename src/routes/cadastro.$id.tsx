@@ -11,6 +11,9 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ArrowLeft, CalendarIcon, MapPin } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { FileUpload } from "@/components/fireguard/FileUpload";
+import type { Anexo } from "@/lib/fireguard/services";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -67,6 +70,7 @@ function CadastroPage() {
     teste_hidrostatico: todayPlus(5 * 365),
     altura_cm: 150,
   });
+  const [fotos, setFotos] = useState<Anexo[]>([]);
 
   useEffect(() => {
     if (existing) {
@@ -83,12 +87,15 @@ function CadastroPage() {
         validade_carga: existing.validade_carga,
         teste_hidrostatico: existing.teste_hidrostatico,
         altura_cm: existing.altura_cm,
+        observacoes: existing.observacoes,
+        fotos: existing.fotos,
       });
+      setFotos((existing.fotos ?? []).map((url) => ({ name: url.split("/").pop() ?? "foto", url })));
     }
   }, [existing]);
 
   const save = useMutation({
-    mutationFn: () => upsertExtintor(form),
+    mutationFn: () => upsertExtintor({ ...form, fotos: fotos.map((f) => f.url) }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["extintores"] });
       toast.success(isNew ? "Extintor cadastrado!" : "Extintor atualizado!");
@@ -188,6 +195,20 @@ function CadastroPage() {
             </p>
             {(form.altura_cm ?? 0) > 160 && <p className="text-xs text-security mt-1 font-medium">Altura excede o limite normativo!</p>}
           </Field>
+        </Section>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+        <Section title="Fotos do Equipamento" subtitle="Estado físico e identificação visual">
+          <FileUpload label="Adicionar foto" accept="image/*" capture="environment" prefix="extintores/fotos" values={fotos} onChange={setFotos} />
+        </Section>
+        <Section title="Observações Finais" subtitle="Notas técnicas, laudos, restrições">
+          <Textarea
+            value={form.observacoes ?? ""}
+            onChange={(e) => set("observacoes", e.target.value)}
+            placeholder="Notas do responsável técnico, restrições de uso, recomendações..."
+            rows={6}
+          />
         </Section>
       </div>
 
