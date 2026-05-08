@@ -8,6 +8,8 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Camera, Check, X, ArrowLeft, ShieldCheck, AlertTriangle } from "lucide-react";
+import { FileUpload } from "@/components/fireguard/FileUpload";
+import type { Anexo } from "@/lib/fireguard/services";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { z } from "zod";
@@ -32,6 +34,8 @@ function InspecaoPage() {
 
   const [itens, setItens] = useState(() => CHECKLIST_ITEMS.map((c) => ({ ...c, conforme: null as boolean | null })));
   const [obs, setObs] = useState("");
+  const [fotos, setFotos] = useState<Anexo[]>([]);
+  const [anexos, setAnexos] = useState<Anexo[]>([]);
   const [scanOpen, setScanOpen] = useState(false);
 
   const onScanned = async (code: string) => {
@@ -56,6 +60,8 @@ function InspecaoPage() {
       itens: itens.map((i) => ({ key: i.key, label: i.label, conforme: !!i.conforme })),
       observacoes: obs,
       conforme,
+      fotos: fotos.map((f) => f.url),
+      anexos,
     }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["inspecoes"] });
