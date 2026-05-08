@@ -1,17 +1,20 @@
 import { Link, useLocation, useNavigate } from "@tanstack/react-router";
-import { Flame, LayoutDashboard, Building2, Wrench, ClipboardCheck, CalendarClock, BellRing, LogOut, Menu, X } from "lucide-react";
+import { Flame, LayoutDashboard, Building2, Wrench, ClipboardCheck, CalendarClock, BellRing, LogOut, Menu, X, Users, Settings as SettingsIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useAuth, type Role } from "@/lib/fireguard/auth";
+import { NotificationBell } from "@/components/fireguard/NotificationBell";
 
 const NAV: { to: string; label: string; icon: typeof LayoutDashboard; roles: Role[] }[] = [
-  { to: "/dashboard", label: "Visão Geral", icon: LayoutDashboard, roles: ["admin"] },
-  { to: "/empresas", label: "Extintores", icon: Building2, roles: ["admin", "inspetor"] },
-  { to: "/relatorios", label: "Manutenções", icon: Wrench, roles: ["admin"] },
-  { to: "/inspecao", label: "Inspeções", icon: ClipboardCheck, roles: ["admin", "inspetor"] },
-  { to: "/vencimentos", label: "Vencimentos", icon: CalendarClock, roles: ["admin"] },
-  { to: "/alertas", label: "Alertas", icon: BellRing, roles: ["admin"] },
+  { to: "/dashboard", label: "Visão Geral", icon: LayoutDashboard, roles: ["admin", "subadmin"] },
+  { to: "/empresas", label: "Extintores", icon: Building2, roles: ["admin", "subadmin", "inspetor"] },
+  { to: "/relatorios", label: "Manutenções", icon: Wrench, roles: ["admin", "subadmin"] },
+  { to: "/inspecao", label: "Inspeções", icon: ClipboardCheck, roles: ["admin", "subadmin", "inspetor"] },
+  { to: "/vencimentos", label: "Vencimentos", icon: CalendarClock, roles: ["admin", "subadmin"] },
+  { to: "/alertas", label: "Alertas", icon: BellRing, roles: ["admin", "subadmin"] },
+  { to: "/equipe", label: "Equipe", icon: Users, roles: ["admin"] },
+  { to: "/configuracoes", label: "Configurações", icon: SettingsIcon, roles: ["admin"] },
 ];
 
 export function AppShell({ children }: { children: React.ReactNode }) {
@@ -28,7 +31,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   if (loading || !user) return null;
   const role: Role = profile?.role ?? "inspetor";
   const items = NAV.filter((n) => n.roles.includes(role));
-  const nome = role === "admin" ? "Administrador" : (profile?.nome ?? user.email ?? "Usuário");
+  const nome = role === "admin" ? "Administrador" : role === "subadmin" ? "Subadministrador" : (profile?.nome ?? user.email ?? "Usuário");
   const initials = nome.split(" ").map((n) => n[0]).slice(0, 2).join("").toUpperCase();
   const hoje = new Date().toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long", year: "numeric" });
 
@@ -70,8 +73,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <p className="text-sm font-medium capitalize">{hoje}</p>
           </div>
           <div className="flex items-center gap-3">
+            <NotificationBell />
             <div className="text-right leading-tight">
-              <p className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">{role === "admin" ? "Administrador" : "Inspetor"}</p>
+              <p className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">{role === "admin" ? "Administrador" : role === "subadmin" ? "Subadmin" : "Inspetor"}</p>
               <p className="text-sm font-semibold">{nome}</p>
             </div>
             <div className="size-10 rounded-full bg-security text-security-foreground flex items-center justify-center font-semibold text-sm">
