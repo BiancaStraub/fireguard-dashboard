@@ -153,6 +153,8 @@ export async function createInspecao(input: {
   itens: ChecklistItem[];
   observacoes: string;
   conforme: boolean;
+  fotos?: string[];
+  anexos?: Anexo[];
 }) {
   const { data, error } = await supabase
     .from("inspecoes")
@@ -163,6 +165,8 @@ export async function createInspecao(input: {
       itens: input.itens,
       observacoes: input.observacoes,
       conforme: input.conforme,
+      fotos: input.fotos ?? [],
+      anexos: (input.anexos ?? []) as unknown as Database["public"]["Tables"]["inspecoes"]["Insert"]["anexos"],
     })
     .select()
     .single();
