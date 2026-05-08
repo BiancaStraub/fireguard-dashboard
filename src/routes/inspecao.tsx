@@ -155,6 +155,16 @@ function InspecaoPage() {
             <label className="text-xs font-mono uppercase tracking-wider text-muted-foreground">Observações finais</label>
             <Textarea value={obs} onChange={(e) => setObs(e.target.value)} placeholder="Descreva qualquer irregularidade ou ação tomada..." rows={4} />
           </div>
+
+          <div className="mt-4 space-y-2">
+            <label className="text-xs font-mono uppercase tracking-wider text-muted-foreground">Fotos do estado físico</label>
+            <FileUpload label="Tirar / Enviar foto" accept="image/*" capture="environment" prefix="inspecao/fotos" values={fotos} onChange={setFotos} />
+          </div>
+
+          <div className="mt-4 space-y-2">
+            <label className="text-xs font-mono uppercase tracking-wider text-muted-foreground">Anexos (laudos / documentos)</label>
+            <FileUpload label="Anexar documento" prefix="inspecao/anexos" values={anexos} onChange={setAnexos} />
+          </div>
         </div>
 
         {allAnswered && (
