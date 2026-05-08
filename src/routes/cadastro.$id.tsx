@@ -198,6 +198,20 @@ function CadastroPage() {
         </Section>
       </div>
 
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+        <Section title="Fotos do Equipamento" subtitle="Estado físico e identificação visual">
+          <FileUpload label="Adicionar foto" accept="image/*" capture="environment" prefix="extintores/fotos" values={fotos} onChange={setFotos} />
+        </Section>
+        <Section title="Observações Finais" subtitle="Notas técnicas, laudos, restrições">
+          <Textarea
+            value={form.observacoes ?? ""}
+            onChange={(e) => set("observacoes", e.target.value)}
+            placeholder="Notas do responsável técnico, restrições de uso, recomendações..."
+            rows={6}
+          />
+        </Section>
+      </div>
+
       <div className="flex justify-end gap-3 mt-8">
         <Button variant="outline" onClick={() => navigate({ to: "/inventario" })}>Cancelar</Button>
         <Button onClick={submit} disabled={save.isPending} className="bg-carbon hover:bg-carbon/90 text-carbon-foreground">{save.isPending ? "Salvando..." : isNew ? "Cadastrar" : "Salvar alterações"}</Button>
