@@ -209,16 +209,16 @@ function KpiCard({ label, value, icon: Icon, accent, hint, active, onClick }: { 
     safe: "text-safe",
   }[accent];
   return (
-    <button onClick={onClick} className={`text-left bg-card p-5 md:p-6 rounded-2xl border border-border shadow-soft flex flex-col justify-between min-h-[140px] transition-all hover:border-security/50 ${ringClass} ${active ? "ring-2 ring-security/40" : ""}`}>
+    <button onClick={onClick} className={`text-left bg-card p-4 md:p-6 rounded-2xl border border-border shadow-soft flex flex-col justify-between min-h-[112px] md:min-h-[140px] transition-all hover:border-security/50 ${ringClass} ${active ? "ring-2 ring-security/40" : ""}`}>
       <div className="flex items-start justify-between">
-        <p className="text-sm font-medium text-muted-foreground">{label}</p>
+        <p className="text-xs md:text-sm font-medium text-muted-foreground leading-tight pr-2">{label}</p>
         <Icon className={`size-4 ${iconColor}`} />
       </div>
       <div>
         <div className="flex items-baseline gap-2">
-          <span className={`text-3xl md:text-4xl font-semibold tracking-tight tabular-nums ${valueColor}`}>{value}</span>
+          <span className={`text-2xl md:text-4xl font-semibold tracking-tight tabular-nums ${valueColor}`}>{value}</span>
         </div>
-        <p className="text-xs text-muted-foreground mt-1">{hint}</p>
+        <p className="text-[10px] md:text-xs text-muted-foreground mt-1 hidden sm:block">{hint}</p>
       </div>
     </button>
   );
