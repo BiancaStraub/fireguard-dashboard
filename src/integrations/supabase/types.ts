@@ -167,6 +167,7 @@ export type Database = {
       }
       inspecoes: {
         Row: {
+          acao: string
           anexos: Json
           conforme: boolean
           created_at: string
@@ -178,8 +179,10 @@ export type Database = {
           inspetor_nome: string
           itens: Json
           observacoes: string | null
+          pecas: string | null
         }
         Insert: {
+          acao?: string
           anexos?: Json
           conforme?: boolean
           created_at?: string
@@ -191,8 +194,10 @@ export type Database = {
           inspetor_nome: string
           itens?: Json
           observacoes?: string | null
+          pecas?: string | null
         }
         Update: {
+          acao?: string
           anexos?: Json
           conforme?: boolean
           created_at?: string
@@ -204,6 +209,7 @@ export type Database = {
           inspetor_nome?: string
           itens?: Json
           observacoes?: string | null
+          pecas?: string | null
         }
         Relationships: [
           {
