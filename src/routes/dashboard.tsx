@@ -114,7 +114,8 @@ function DashboardPage() {
         )}
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
+      {/* KPIs — sempre visíveis. Clique apenas altera o filtro da lista abaixo. */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6 mb-6 md:mb-8">
         <KpiCard label="Total de Ativos" value={kpis.total} icon={Boxes} accent="default" hint="Clique para limpar" active={filtroStatus === "todos"} onClick={() => setFiltroStatus("todos")} />
         <KpiCard label="Vencidos" value={kpis.vencidos} icon={AlertTriangle} accent="security" hint="Ação imediata" active={filtroStatus === "vencidos"} onClick={() => setFiltroStatus("vencidos")} />
         <KpiCard label="Vence em 30 dias" value={kpis.vencendo30} icon={Clock} accent="alert" hint="Aviso prévio" active={filtroStatus === "vencendo"} onClick={() => setFiltroStatus("vencendo")} />
@@ -153,27 +154,34 @@ function DashboardPage() {
         </div>
 
         <div className="space-y-3">
-          <h3 className="font-semibold text-lg mb-1">Extintores {filtroStatus !== "todos" ? `(${filtroStatus === "vencidos" ? "vencidos" : filtroStatus === "vencendo" ? "30 dias" : "conformes"})` : "filtrados"}</h3>
-          <p className="text-xs text-muted-foreground mb-2">{filtrados.length} resultado(s)</p>
+          <div className="flex items-baseline justify-between">
+            <h3 className="font-semibold text-lg">Extintores {filtroStatus !== "todos" ? `(${filtroStatus === "vencidos" ? "vencidos" : filtroStatus === "vencendo" ? "30 dias" : "conformes"})` : "filtrados"}</h3>
+            <span className="text-xs text-muted-foreground tabular-nums">{filtrados.length}</span>
+          </div>
           {filtrados.length === 0 && (
             <div className="p-4 bg-card rounded-xl border border-border text-sm text-muted-foreground shadow-soft">
               Nenhum equipamento corresponde aos filtros.
             </div>
           )}
-          <div className="max-h-[480px] overflow-y-auto space-y-2 pr-1">
-            {filtrados.slice(0, 30).map((e) => (
-              <button
-                key={e.id}
-                onClick={() => navigate({ to: "/inventario", search: { empresa: e.empresa_id ?? undefined } as never })}
-                className="w-full text-left p-3 bg-card rounded-xl border border-border flex items-center gap-3 shadow-soft hover:border-security/40 transition-colors"
-              >
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm font-semibold truncate">{e.codigo} · {e.tipo}</p>
-                  <p className="text-xs text-muted-foreground truncate">{e.setor} · {e.predio}</p>
-                </div>
-                <StatusBadge status={statusFor(e)} />
-              </button>
-            ))}
+          <div className="max-h-[520px] overflow-y-auto space-y-2.5 pr-1">
+            {filtrados.slice(0, 30).map((e) => {
+              const venc = e.teste_hidrostatico ?? e.validade_carga;
+              const dataFmt = venc ? new Date(venc).toLocaleDateString("pt-BR") : "—";
+              return (
+                <button
+                  key={e.id}
+                  onClick={() => navigate({ to: "/inventario", search: { empresa: e.empresa_id ?? undefined } as never })}
+                  className="w-full text-left p-3.5 bg-card rounded-xl border border-border shadow-soft hover:border-security/40 transition-colors"
+                >
+                  <div className="flex items-start justify-between gap-2 mb-1.5">
+                    <p className="text-sm font-semibold truncate">{e.codigo}</p>
+                    <StatusBadge status={statusFor(e)} />
+                  </div>
+                  <p className="text-xs text-muted-foreground truncate">{e.tipo} · {e.setor}</p>
+                  <p className="text-xs text-muted-foreground/80 mt-0.5">Vencimento: <span className="text-foreground/80 font-medium">{dataFmt}</span></p>
+                </button>
+              );
+            })}
           </div>
         </div>
       </div>
@@ -201,16 +209,16 @@ function KpiCard({ label, value, icon: Icon, accent, hint, active, onClick }: { 
     safe: "text-safe",
   }[accent];
   return (
-    <button onClick={onClick} className={`text-left bg-card p-5 md:p-6 rounded-2xl border border-border shadow-soft flex flex-col justify-between min-h-[140px] transition-all hover:border-security/50 ${ringClass} ${active ? "ring-2 ring-security/40" : ""}`}>
+    <button onClick={onClick} className={`text-left bg-card p-4 md:p-6 rounded-2xl border border-border shadow-soft flex flex-col justify-between min-h-[112px] md:min-h-[140px] transition-all hover:border-security/50 ${ringClass} ${active ? "ring-2 ring-security/40" : ""}`}>
       <div className="flex items-start justify-between">
-        <p className="text-sm font-medium text-muted-foreground">{label}</p>
+        <p className="text-xs md:text-sm font-medium text-muted-foreground leading-tight pr-2">{label}</p>
         <Icon className={`size-4 ${iconColor}`} />
       </div>
       <div>
         <div className="flex items-baseline gap-2">
-          <span className={`text-3xl md:text-4xl font-semibold tracking-tight tabular-nums ${valueColor}`}>{value}</span>
+          <span className={`text-2xl md:text-4xl font-semibold tracking-tight tabular-nums ${valueColor}`}>{value}</span>
         </div>
-        <p className="text-xs text-muted-foreground mt-1">{hint}</p>
+        <p className="text-[10px] md:text-xs text-muted-foreground mt-1 hidden sm:block">{hint}</p>
       </div>
     </button>
   );
