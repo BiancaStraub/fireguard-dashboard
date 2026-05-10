@@ -153,17 +153,17 @@ function DashboardPage() {
           </div>
         </div>
 
-        <div className="space-y-3">
-          <div className="flex items-baseline justify-between">
-            <h3 className="font-semibold text-lg">Extintores {filtroStatus !== "todos" ? `(${filtroStatus === "vencidos" ? "vencidos" : filtroStatus === "vencendo" ? "30 dias" : "conformes"})` : "filtrados"}</h3>
-            <span className="text-xs text-muted-foreground tabular-nums">{filtrados.length}</span>
+        <div className="space-y-3 min-w-0">
+          <div className="flex items-baseline justify-between gap-2">
+            <h3 className="font-semibold text-lg truncate">Extintores {filtroStatus !== "todos" ? `(${filtroStatus === "vencidos" ? "vencidos" : filtroStatus === "vencendo" ? "30 dias" : "conformes"})` : "filtrados"}</h3>
+            <span className="text-xs text-muted-foreground tabular-nums shrink-0">{filtrados.length}</span>
           </div>
           {filtrados.length === 0 && (
             <div className="p-4 bg-card rounded-xl border border-border text-sm text-muted-foreground shadow-soft">
               Nenhum equipamento corresponde aos filtros.
             </div>
           )}
-          <div className="max-h-[520px] overflow-y-auto space-y-2.5 pr-1">
+          <div className="max-h-[520px] overflow-y-auto space-y-3 pr-1">
             {filtrados.slice(0, 30).map((e) => {
               const venc = e.teste_hidrostatico ?? e.validade_carga;
               const dataFmt = venc ? new Date(venc).toLocaleDateString("pt-BR") : "—";
@@ -171,14 +171,20 @@ function DashboardPage() {
                 <button
                   key={e.id}
                   onClick={() => navigate({ to: "/inventario", search: { empresa: e.empresa_id ?? undefined } as never })}
-                  className="w-full text-left p-3.5 bg-card rounded-xl border border-border shadow-soft hover:border-security/40 transition-colors"
+                  className="w-full text-left p-5 bg-card rounded-xl border border-border shadow-soft hover:border-security/40 transition-colors flex flex-col gap-3"
                 >
-                  <div className="flex items-start justify-between gap-2 mb-1.5">
-                    <p className="text-sm font-semibold truncate">{e.codigo}</p>
-                    <StatusBadge status={statusFor(e)} />
+                  <div className="flex items-start justify-between gap-2">
+                    <p className="text-lg font-bold text-foreground truncate min-w-0">{e.codigo}</p>
+                    <span className="shrink-0"><StatusBadge status={statusFor(e)} /></span>
                   </div>
-                  <p className="text-xs text-muted-foreground truncate">{e.tipo} · {e.setor}</p>
-                  <p className="text-xs text-muted-foreground/80 mt-0.5">Vencimento: <span className="text-foreground/80 font-medium">{dataFmt}</span></p>
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium text-muted-foreground">Localização</p>
+                    <p className="text-base text-foreground/90 break-words">{e.tipo} · {e.setor}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium text-muted-foreground">Vencimento</p>
+                    <p className="text-base font-normal text-foreground/90 tabular-nums">{dataFmt}</p>
+                  </div>
                 </button>
               );
             })}
