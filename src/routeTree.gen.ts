@@ -14,8 +14,10 @@ import { Route as RelatoriosRouteImport } from './routes/relatorios'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as InventarioRouteImport } from './routes/inventario'
 import { Route as InspecaoRouteImport } from './routes/inspecao'
+import { Route as EquipeRouteImport } from './routes/equipe'
 import { Route as EmpresasRouteImport } from './routes/empresas'
 import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as ConfiguracoesRouteImport } from './routes/configuracoes'
 import { Route as AlertasRouteImport } from './routes/alertas'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CadastroIdRouteImport } from './routes/cadastro.$id'
@@ -45,6 +47,11 @@ const InspecaoRoute = InspecaoRouteImport.update({
   path: '/inspecao',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EquipeRoute = EquipeRouteImport.update({
+  id: '/equipe',
+  path: '/equipe',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EmpresasRoute = EmpresasRouteImport.update({
   id: '/empresas',
   path: '/empresas',
@@ -53,6 +60,11 @@ const EmpresasRoute = EmpresasRouteImport.update({
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConfiguracoesRoute = ConfiguracoesRouteImport.update({
+  id: '/configuracoes',
+  path: '/configuracoes',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AlertasRoute = AlertasRouteImport.update({
@@ -74,8 +86,10 @@ const CadastroIdRoute = CadastroIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/alertas': typeof AlertasRoute
+  '/configuracoes': typeof ConfiguracoesRoute
   '/dashboard': typeof DashboardRoute
   '/empresas': typeof EmpresasRoute
+  '/equipe': typeof EquipeRoute
   '/inspecao': typeof InspecaoRoute
   '/inventario': typeof InventarioRoute
   '/login': typeof LoginRoute
@@ -86,8 +100,10 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/alertas': typeof AlertasRoute
+  '/configuracoes': typeof ConfiguracoesRoute
   '/dashboard': typeof DashboardRoute
   '/empresas': typeof EmpresasRoute
+  '/equipe': typeof EquipeRoute
   '/inspecao': typeof InspecaoRoute
   '/inventario': typeof InventarioRoute
   '/login': typeof LoginRoute
@@ -99,8 +115,10 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/alertas': typeof AlertasRoute
+  '/configuracoes': typeof ConfiguracoesRoute
   '/dashboard': typeof DashboardRoute
   '/empresas': typeof EmpresasRoute
+  '/equipe': typeof EquipeRoute
   '/inspecao': typeof InspecaoRoute
   '/inventario': typeof InventarioRoute
   '/login': typeof LoginRoute
@@ -113,8 +131,10 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/alertas'
+    | '/configuracoes'
     | '/dashboard'
     | '/empresas'
+    | '/equipe'
     | '/inspecao'
     | '/inventario'
     | '/login'
@@ -125,8 +145,10 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/alertas'
+    | '/configuracoes'
     | '/dashboard'
     | '/empresas'
+    | '/equipe'
     | '/inspecao'
     | '/inventario'
     | '/login'
@@ -137,8 +159,10 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/alertas'
+    | '/configuracoes'
     | '/dashboard'
     | '/empresas'
+    | '/equipe'
     | '/inspecao'
     | '/inventario'
     | '/login'
@@ -150,8 +174,10 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AlertasRoute: typeof AlertasRoute
+  ConfiguracoesRoute: typeof ConfiguracoesRoute
   DashboardRoute: typeof DashboardRoute
   EmpresasRoute: typeof EmpresasRoute
+  EquipeRoute: typeof EquipeRoute
   InspecaoRoute: typeof InspecaoRoute
   InventarioRoute: typeof InventarioRoute
   LoginRoute: typeof LoginRoute
@@ -197,6 +223,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof InspecaoRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/equipe': {
+      id: '/equipe'
+      path: '/equipe'
+      fullPath: '/equipe'
+      preLoaderRoute: typeof EquipeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/empresas': {
       id: '/empresas'
       path: '/empresas'
@@ -209,6 +242,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/configuracoes': {
+      id: '/configuracoes'
+      path: '/configuracoes'
+      fullPath: '/configuracoes'
+      preLoaderRoute: typeof ConfiguracoesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/alertas': {
@@ -238,8 +278,10 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AlertasRoute: AlertasRoute,
+  ConfiguracoesRoute: ConfiguracoesRoute,
   DashboardRoute: DashboardRoute,
   EmpresasRoute: EmpresasRoute,
+  EquipeRoute: EquipeRoute,
   InspecaoRoute: InspecaoRoute,
   InventarioRoute: InventarioRoute,
   LoginRoute: LoginRoute,
