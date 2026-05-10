@@ -31,20 +31,20 @@ function EmpresasPage() {
             <button
               key={e.id}
               onClick={() => navigate({ to: "/inventario", search: { empresa: e.id } as never })}
-              className="group text-left bg-card border border-border rounded-2xl p-6 shadow-soft hover:border-security/50 hover:shadow-glow-red transition-all"
+              className="group text-left bg-card border border-border rounded-2xl p-6 shadow-soft hover:border-security/50 hover:shadow-glow-red transition-all flex flex-col gap-3"
             >
-              <div className="flex items-start justify-between mb-4">
+              <div className="flex items-start justify-between">
                 <div className="size-12 rounded-xl bg-security/10 text-security flex items-center justify-center">
                   <Building2 className="size-6" />
                 </div>
                 <ChevronRight className="size-5 text-muted-foreground group-hover:text-security transition-colors" />
               </div>
-              <h3 className="font-semibold text-lg leading-tight mb-2">{e.nome}</h3>
-              <div className="space-y-1.5 text-xs text-muted-foreground">
-                <p className="flex items-center gap-1.5"><Hash className="size-3" /> CNPJ {e.cnpj}</p>
-                <p className="flex items-center gap-1.5"><MapPin className="size-3" /> {e.endereco}</p>
+              <h3 className="text-lg font-bold leading-tight break-words">{e.nome}</h3>
+              <div className="space-y-2 text-sm text-muted-foreground">
+                <p className="flex items-start gap-1.5"><Hash className="size-3 mt-1 shrink-0" /> <span className="font-medium">CNPJ:</span> <span className="truncate text-foreground/90">{e.cnpj}</span></p>
+                <p className="flex items-start gap-1.5"><MapPin className="size-3 mt-1 shrink-0" /> <span className="break-words text-foreground/90">{e.endereco}</span></p>
               </div>
-              <div className="mt-5 pt-4 border-t border-border flex items-baseline justify-between">
+              <div className="mt-2 pt-4 border-t border-border flex items-baseline justify-between gap-2">
                 <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">Total de Extintores</span>
                 <span className="text-2xl font-semibold tabular-nums text-security">{total}</span>
               </div>
