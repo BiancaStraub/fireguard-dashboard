@@ -129,8 +129,9 @@ function DashboardPage() {
       <FloorPlanModal
         open={plantaOpen}
         onOpenChange={setPlantaOpen}
-        empresaNome={filtroEmpresa !== "todas" ? empresas.find((e) => e.id === filtroEmpresa)?.nome : undefined}
-        extintores={extintores}
+        empresas={empresas}
+        extintores={extintoresAll}
+        initialEmpresaId={filtroEmpresa !== "todas" ? filtroEmpresa : undefined}
       />
 
       {/* KPIs — sempre visíveis. Clique apenas altera o filtro da lista abaixo. */}
