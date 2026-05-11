@@ -84,7 +84,7 @@ function AlertasPage() {
                   </div>
                 </div>
                 <div className="flex flex-col sm:flex-row gap-2 shrink-0">
-                  <Button variant="outline" className="h-10" onClick={() => navigate({ to: "/inspecao", search: { codigo: e.codigo } as never })}>
+                  <Button variant="outline" className="h-10" onClick={() => navigate({ to: "/inspecao" })}>
                     <ClipboardCheck className="size-4" /> Registrar Inspeção
                   </Button>
                   <Button className="h-10 bg-security hover:bg-security/90 text-security-foreground" onClick={() => notificar(e.codigo)}>
