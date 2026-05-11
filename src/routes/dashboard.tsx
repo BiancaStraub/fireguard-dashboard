@@ -5,10 +5,12 @@ import { listExtintores, listInspecoes, listEmpresas, statusFor, daysUntil } fro
 import { useMemo, useEffect, useState } from "react";
 import { useAuth } from "@/lib/fireguard/auth";
 import { AlertTriangle, CheckCircle2, Clock, Boxes, Filter } from "lucide-react";
+import { Map as MapIcon } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip } from "recharts";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { StatusBadge } from "@/components/fireguard/StatusBadge";
 import { Button } from "@/components/ui/button";
+import { FloorPlanModal } from "@/components/fireguard/FloorPlanModal";
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({ meta: [{ title: "Dashboard — FireGuard" }] }),
@@ -31,6 +33,7 @@ function DashboardPage() {
   const [filtroEmpresa, setFiltroEmpresa] = useState<string>("todas");
   const [filtroSetor, setFiltroSetor] = useState<string>("todos");
   const [filtroStatus, setFiltroStatus] = useState<string>("todos");
+  const [plantaOpen, setPlantaOpen] = useState(false);
 
   const extintores = useMemo(() => {
     return extintoresAll.filter((e) => {
@@ -112,7 +115,23 @@ function DashboardPage() {
         {(filtroEmpresa !== "todas" || filtroSetor !== "todos" || filtroStatus !== "todos") && (
           <Button variant="ghost" size="sm" onClick={() => { setFiltroEmpresa("todas"); setFiltroSetor("todos"); setFiltroStatus("todos"); }}>Limpar</Button>
         )}
+        <div className="md:ml-auto">
+          <Button
+            onClick={() => setPlantaOpen(true)}
+            className="gap-2 bg-security text-white hover:bg-security/90"
+            size="sm"
+          >
+            <MapIcon className="size-4" /> Ver Planta do Local
+          </Button>
+        </div>
       </div>
+
+      <FloorPlanModal
+        open={plantaOpen}
+        onOpenChange={setPlantaOpen}
+        empresaNome={filtroEmpresa !== "todas" ? empresas.find((e) => e.id === filtroEmpresa)?.nome : undefined}
+        extintores={extintores}
+      />
 
       {/* KPIs — sempre visíveis. Clique apenas altera o filtro da lista abaixo. */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6 mb-6 md:mb-8">
