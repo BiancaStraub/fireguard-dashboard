@@ -1,14 +1,9 @@
 import { Link, useLocation, useNavigate } from "@tanstack/react-router";
-import { Flame, LayoutDashboard, Building2, Wrench, ClipboardCheck, CalendarClock, BellRing, LogOut, Menu, X, Users, Settings as SettingsIcon, Map as MapIcon } from "lucide-react";
+import { Flame, LayoutDashboard, Building2, Wrench, ClipboardCheck, CalendarClock, BellRing, LogOut, Menu, X, Users, Settings as SettingsIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { useAuth, type Role } from "@/lib/fireguard/auth";
 import { NotificationBell } from "@/components/fireguard/NotificationBell";
-import { FloorPlanProvider, useFloorPlan } from "@/lib/fireguard/floor-plan-context";
-import { FloorPlanModal } from "@/components/fireguard/FloorPlanModal";
-import { useQuery } from "@tanstack/react-query";
-import { listEmpresas, listExtintores } from "@/lib/fireguard/services";
-import { Button } from "@/components/ui/button";
 
 const NAV: { to: string; label: string; icon: typeof LayoutDashboard; roles: Role[] }[] = [
   { to: "/dashboard", label: "Visão Geral", icon: LayoutDashboard, roles: ["admin", "subadmin"] },
@@ -22,21 +17,10 @@ const NAV: { to: string; label: string; icon: typeof LayoutDashboard; roles: Rol
 ];
 
 export function AppShell({ children }: { children: React.ReactNode }) {
-  return (
-    <FloorPlanProvider>
-      <AppShellInner>{children}</AppShellInner>
-    </FloorPlanProvider>
-  );
-}
-
-function AppShellInner({ children }: { children: React.ReactNode }) {
   const { user, profile, loading, signOut } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [open, setOpen] = useState(false);
-  const { open: plantaOpen, setOpen: setPlantaOpen, empresaId: plantaEmpresaId, openPlanta } = useFloorPlan();
-  const { data: empresas = [] } = useQuery({ queryKey: ["empresas"], queryFn: listEmpresas, enabled: !!user });
-  const { data: extintoresAll = [] } = useQuery({ queryKey: ["extintores"], queryFn: listExtintores, enabled: !!user });
 
   useEffect(() => {
     if (!loading && !user) navigate({ to: "/login" });
@@ -88,14 +72,6 @@ function AppShellInner({ children }: { children: React.ReactNode }) {
             <p className="text-sm font-medium capitalize">{hoje}</p>
           </div>
           <div className="flex items-center gap-3">
-            <Button
-              onClick={() => openPlanta()}
-              variant="outline"
-              size="sm"
-              className="hidden sm:inline-flex gap-2 border-security/60 text-security hover:bg-security/10 hover:text-security"
-            >
-              <MapIcon className="size-4" /> Ver Planta
-            </Button>
             <NotificationBell />
             <div className="text-right leading-tight">
               <p className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">{role === "admin" ? "Administrador" : role === "subadmin" ? "Subadmin" : "Inspetor"}</p>
@@ -108,23 +84,6 @@ function AppShellInner({ children }: { children: React.ReactNode }) {
         </header>
 
         <main className="flex-1 px-4 md:px-8 py-6 md:py-8 pb-24 md:pb-8 max-w-7xl w-full mx-auto">{children}</main>
-
-        {/* Mobile floating action button — Ver Planta */}
-        <button
-          onClick={() => openPlanta()}
-          aria-label="Ver Planta do Local"
-          className="md:hidden fixed bottom-20 right-4 z-40 size-14 rounded-full bg-security text-security-foreground shadow-glow-red flex items-center justify-center active:scale-95 transition-transform"
-        >
-          <MapIcon className="size-6" />
-        </button>
-
-        <FloorPlanModal
-          open={plantaOpen}
-          onOpenChange={setPlantaOpen}
-          empresas={empresas}
-          extintores={extintoresAll}
-          initialEmpresaId={plantaEmpresaId}
-        />
 
         {/* Bottom Nav mobile */}
         <nav className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-card/95 backdrop-blur border-t border-border">

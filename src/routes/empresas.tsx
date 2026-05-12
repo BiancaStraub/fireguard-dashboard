@@ -2,9 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { AppShell } from "@/components/fireguard/AppShell";
 import { useQuery } from "@tanstack/react-query";
 import { listEmpresas, countExtintoresPorEmpresa } from "@/lib/fireguard/services";
-import { Building2, MapPin, Hash, ChevronRight, Map as MapIcon } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { useFloorPlan } from "@/lib/fireguard/floor-plan-context";
+import { Building2, MapPin, Hash, ChevronRight } from "lucide-react";
 
 export const Route = createFileRoute("/empresas")({
   head: () => ({ meta: [{ title: "Empresas — FireGuard" }] }),
@@ -13,24 +11,15 @@ export const Route = createFileRoute("/empresas")({
 
 function EmpresasPage() {
   const navigate = useNavigate();
-  const { openPlanta } = useFloorPlan();
   const { data: empresas = [], isLoading } = useQuery({ queryKey: ["empresas"], queryFn: listEmpresas });
   const { data: counts } = useQuery({ queryKey: ["empresas-counts"], queryFn: countExtintoresPorEmpresa });
 
   return (
     <AppShell>
-      <div className="mb-6 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
-        <div>
-          <p className="text-xs font-mono uppercase tracking-widest text-muted-foreground mb-1">Extintores</p>
-          <h1 className="text-3xl font-semibold tracking-tight">Selecione uma Empresa</h1>
-          <p className="text-sm text-muted-foreground mt-1">Acesse o inventário detalhado de cada unidade conforme NBR 13485 / 12693.</p>
-        </div>
-        <Button
-          onClick={() => openPlanta()}
-          className="gap-2 bg-security text-white hover:bg-security/90 self-start md:self-auto"
-        >
-          <MapIcon className="size-4" /> Ver Planta do Local
-        </Button>
+      <div className="mb-8">
+        <p className="text-xs font-mono uppercase tracking-widest text-muted-foreground mb-1">Extintores</p>
+        <h1 className="text-3xl font-semibold tracking-tight">Selecione uma Empresa</h1>
+        <p className="text-sm text-muted-foreground mt-1">Acesse o inventário detalhado de cada unidade conforme NBR 13485 / 12693.</p>
       </div>
 
       {isLoading && <p className="text-sm text-muted-foreground">Carregando...</p>}
@@ -39,11 +28,11 @@ function EmpresasPage() {
         {empresas.map((e) => {
           const total = counts?.get(e.id) ?? 0;
           return (
-            <div key={e.id} className="group bg-card border border-border rounded-2xl p-6 shadow-soft hover:border-security/50 hover:shadow-glow-red transition-all flex flex-col gap-3">
-              <button
-                onClick={() => navigate({ to: "/inventario", search: { empresa: e.id } as never })}
-                className="text-left flex flex-col gap-3"
-              >
+            <button
+              key={e.id}
+              onClick={() => navigate({ to: "/inventario", search: { empresa: e.id } as never })}
+              className="group text-left bg-card border border-border rounded-2xl p-6 shadow-soft hover:border-security/50 hover:shadow-glow-red transition-all flex flex-col gap-3"
+            >
               <div className="flex items-start justify-between">
                 <div className="size-12 rounded-xl bg-security/10 text-security flex items-center justify-center">
                   <Building2 className="size-6" />
@@ -59,16 +48,7 @@ function EmpresasPage() {
                 <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">Total de Extintores</span>
                 <span className="text-2xl font-semibold tabular-nums text-security">{total}</span>
               </div>
-              </button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={(ev) => { ev.stopPropagation(); openPlanta(e.id); }}
-                className="gap-2 border-security/50 text-security hover:bg-security/10 hover:text-security"
-              >
-                <MapIcon className="size-4" /> Ver Planta
-              </Button>
-            </div>
+            </button>
           );
         })}
       </div>
