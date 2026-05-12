@@ -4,13 +4,12 @@ import { useQuery } from "@tanstack/react-query";
 import { listExtintores, listInspecoes, listEmpresas, statusFor, daysUntil } from "@/lib/fireguard/services";
 import { useMemo, useEffect, useState } from "react";
 import { useAuth } from "@/lib/fireguard/auth";
-import { AlertTriangle, CheckCircle2, Clock, Boxes, Filter } from "lucide-react";
-import { Map as MapIcon } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Clock, Boxes, Filter, Map as MapIcon } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip } from "recharts";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { StatusBadge } from "@/components/fireguard/StatusBadge";
 import { Button } from "@/components/ui/button";
-import { FloorPlanModal } from "@/components/fireguard/FloorPlanModal";
+import { useFloorPlan } from "@/lib/fireguard/floor-plan-context";
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({ meta: [{ title: "Dashboard — FireGuard" }] }),
@@ -33,7 +32,7 @@ function DashboardPage() {
   const [filtroEmpresa, setFiltroEmpresa] = useState<string>("todas");
   const [filtroSetor, setFiltroSetor] = useState<string>("todos");
   const [filtroStatus, setFiltroStatus] = useState<string>("todos");
-  const [plantaOpen, setPlantaOpen] = useState(false);
+  const { openPlanta } = useFloorPlan();
 
   const extintores = useMemo(() => {
     return extintoresAll.filter((e) => {
@@ -117,7 +116,7 @@ function DashboardPage() {
         )}
         <div className="md:ml-auto">
           <Button
-            onClick={() => setPlantaOpen(true)}
+            onClick={() => openPlanta(filtroEmpresa !== "todas" ? filtroEmpresa : undefined)}
             className="gap-2 bg-security text-white hover:bg-security/90"
             size="sm"
           >
@@ -126,14 +125,6 @@ function DashboardPage() {
         </div>
       </div>
 
-      <FloorPlanModal
-        open={plantaOpen}
-        onOpenChange={setPlantaOpen}
-        empresas={empresas}
-        extintores={extintoresAll}
-        initialEmpresaId={filtroEmpresa !== "todas" ? filtroEmpresa : undefined}
-      />
-
       {/* KPIs — sempre visíveis. Clique apenas altera o filtro da lista abaixo. */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6 mb-6 md:mb-8">
         <KpiCard label="Total de Ativos" value={kpis.total} icon={Boxes} accent="default" hint="Clique para limpar" active={filtroStatus === "todos"} onClick={() => setFiltroStatus("todos")} />
@@ -141,6 +132,21 @@ function DashboardPage() {
         <KpiCard label="Vence em 30 dias" value={kpis.vencendo30} icon={Clock} accent="alert" hint="Aviso prévio" active={filtroStatus === "vencendo"} onClick={() => setFiltroStatus("vencendo")} />
         <KpiCard label="Em Conformidade" value={kpis.ok} icon={CheckCircle2} accent="safe" hint="OK" active={filtroStatus === "ok"} onClick={() => setFiltroStatus("ok")} />
       </div>
+
+      {/* Big CTA — Ver Mapa de Extintores */}
+      <button
+        onClick={() => openPlanta(filtroEmpresa !== "todas" ? filtroEmpresa : undefined)}
+        className="w-full mb-6 md:mb-8 group relative overflow-hidden rounded-2xl border border-security/40 bg-gradient-to-r from-security/15 via-security/10 to-transparent hover:border-security transition-colors p-5 md:p-6 flex items-center gap-4 text-left shadow-soft"
+      >
+        <div className="size-12 md:size-14 rounded-xl bg-security text-security-foreground flex items-center justify-center shadow-glow-red shrink-0">
+          <MapIcon className="size-6 md:size-7" />
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="text-base md:text-lg font-semibold tracking-tight">Visualizar Mapa de Extintores</p>
+          <p className="text-xs md:text-sm text-muted-foreground mt-0.5 break-words">Abra a planta interativa com pins coloridos por status de cada extintor.</p>
+        </div>
+        <span className="hidden md:inline-flex items-center text-xs font-mono uppercase tracking-wider text-security shrink-0">Abrir →</span>
+      </button>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
         <div className="lg:col-span-2 bg-card p-5 md:p-8 rounded-2xl border border-border shadow-soft">
