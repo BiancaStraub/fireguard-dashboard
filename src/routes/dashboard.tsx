@@ -82,26 +82,20 @@ function DashboardPage() {
 
   return (
     <AppShell>
-      {/* CTA: Painel de Auditoria (Equipe 5) */}
-      <Link
-        to="/auditoria"
-        className="group mb-6 flex items-center justify-between gap-4 rounded-2xl border border-security/20 bg-gradient-to-r from-security/10 via-security/5 to-transparent p-4 md:p-5 shadow-soft hover:shadow-glow-red transition-shadow"
-      >
-        <div className="flex items-center gap-3 md:gap-4 min-w-0">
-          <div className="size-11 md:size-12 rounded-xl bg-security text-security-foreground flex items-center justify-center shrink-0 shadow-glow-red">
-            <ShieldCheck className="size-6" strokeWidth={2.25} />
-          </div>
-          <div className="min-w-0">
-            <p className="text-[10px] md:text-xs font-mono uppercase tracking-widest text-security">Equipe 5 · Conformidade</p>
-            <h2 className="text-base md:text-lg font-semibold leading-tight truncate">Painel de Auditoria (Equipe 5)</h2>
-            <p className="hidden sm:block text-xs text-muted-foreground mt-0.5">NBR 12962 · NBR 13485 · NR-23 — abrir verificação de conformidade</p>
-          </div>
+      {/* Cabeçalho do Dashboard com CTA de Auditoria */}
+      <div className="mb-6 md:mb-8 flex flex-col items-start gap-4 md:flex-row md:items-center md:justify-between">
+        <div className="min-w-0">
+          <p className="text-xs font-mono uppercase tracking-widest text-muted-foreground">Sistema FireGuard</p>
+          <h1 className="text-2xl md:text-3xl font-semibold tracking-tight">Visão Geral</h1>
         </div>
-        <div className="flex items-center gap-2 text-sm font-medium text-security shrink-0">
-          <span className="hidden md:inline">Abrir</span>
-          <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
-        </div>
-      </Link>
+        <Link
+          to="/auditoria"
+          className="w-full md:w-auto inline-flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 transition-colors text-white font-semibold px-4 py-2 rounded-xl shadow-soft"
+        >
+          <ShieldCheck className="size-4" strokeWidth={2.5} />
+          <span>Painel de Auditoria (Equipe 5)</span>
+        </Link>
+      </div>
 
       {/* Filter bar */}
       <div className="bg-card border border-border rounded-2xl shadow-soft p-4 mb-6 flex flex-col md:flex-row md:items-center gap-3">
