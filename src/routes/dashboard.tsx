@@ -4,12 +4,11 @@ import { useQuery } from "@tanstack/react-query";
 import { listExtintores, listInspecoes, listEmpresas, statusFor, daysUntil } from "@/lib/fireguard/services";
 import { useMemo, useEffect, useState } from "react";
 import { useAuth } from "@/lib/fireguard/auth";
-import { AlertTriangle, CheckCircle2, Clock, Boxes, Filter, ShieldCheck } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Clock, Boxes, Filter } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip } from "recharts";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { StatusBadge } from "@/components/fireguard/StatusBadge";
 import { Button } from "@/components/ui/button";
-import { Link } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({ meta: [{ title: "Dashboard — FireGuard" }] }),
@@ -82,19 +81,10 @@ function DashboardPage() {
 
   return (
     <AppShell>
-      {/* Cabeçalho do Dashboard com CTA de Auditoria */}
-      <div className="mb-6 md:mb-8 flex flex-col items-start gap-4 md:flex-row md:items-center md:justify-between">
-        <div className="min-w-0">
-          <p className="text-xs font-mono uppercase tracking-widest text-muted-foreground">Sistema FireGuard</p>
-          <h1 className="text-2xl md:text-3xl font-semibold tracking-tight">Visão Geral</h1>
-        </div>
-        <Link
-          to="/auditoria"
-          className="w-full md:w-auto inline-flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 transition-colors text-white font-semibold px-4 py-2 rounded-xl shadow-soft"
-        >
-          <ShieldCheck className="size-4" strokeWidth={2.5} />
-          <span>Painel de Auditoria (Equipe 5)</span>
-        </Link>
+      {/* Cabeçalho do Dashboard */}
+      <div className="mb-6 md:mb-8">
+        <p className="text-xs font-mono uppercase tracking-widest text-muted-foreground">Sistema FireGuard</p>
+        <h1 className="text-2xl md:text-3xl font-semibold tracking-tight">Visão Geral</h1>
       </div>
 
       {/* Filter bar */}
