@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { ShieldCheck, FileCheck2, AlertTriangle, CircleCheck, CircleX, ClipboardList, ArrowLeft, ListChecks, Gauge, ClipboardEdit } from "lucide-react";
+import { ShieldCheck, FileCheck2, AlertTriangle, CircleCheck, CircleX, ClipboardList, ArrowLeft, ListChecks, Gauge, ClipboardEdit, Mail, Phone, ArrowRight } from "lucide-react";
 
 export const Route = createFileRoute("/auditoria")({
   head: () => ({ meta: [{ title: "Auditoria (Equipe 5) — FireGuard" }] }),
@@ -178,6 +178,31 @@ function AuditoriaPage() {
         </section>
 
         <p className="text-[11px] text-slate-400 mt-6 text-center">FireGuard · Portal público de auditoria · Atualizado em maio de 2026</p>
+
+        {/* Card de contato comercial — Equipe 5 */}
+        <section className="mt-10 rounded-2xl overflow-hidden border border-red-100 bg-gradient-to-br from-red-600 to-red-700 text-white shadow-sm">
+          <div className="p-6 md:p-8 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+            <div className="max-w-xl">
+              <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-red-100/90 mb-2">Serviços de Conformidade</p>
+              <h2 className="text-xl md:text-2xl font-bold tracking-tight">Precisa adequar sua empresa à NR-23?</h2>
+              <p className="text-sm text-red-50/90 mt-2 leading-relaxed">
+                Nossa equipe realiza auditoria completa de extintores, sinalização, rotas de fuga e plano
+                de emergência segundo as NBR 12962, NBR 13485 e NR-23.
+              </p>
+              <div className="mt-4 flex flex-wrap gap-4 text-xs text-red-50/90">
+                <span className="inline-flex items-center gap-1.5"><Mail className="size-3.5" /> contato@equipe5.com.br</span>
+                <span className="inline-flex items-center gap-1.5"><Phone className="size-3.5" /> (11) 4002-8922</span>
+              </div>
+            </div>
+            <a
+              href="mailto:contato@equipe5.com.br?subject=Solicita%C3%A7%C3%A3o%20de%20Auditoria%20NR-23"
+              className="shrink-0 inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-white text-red-700 font-semibold text-sm shadow-sm hover:bg-red-50 transition-colors"
+            >
+              Solicitar Auditoria da Equipe 5
+              <ArrowRight className="size-4" strokeWidth={2.25} />
+            </a>
+          </div>
+        </section>
       </main>
     </div>
   );
