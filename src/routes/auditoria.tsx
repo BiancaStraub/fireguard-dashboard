@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ShieldCheck, FileCheck2, AlertTriangle, CircleCheck, CircleX, ClipboardList, ArrowLeft } from "lucide-react";
+import { useState } from "react";
+import { ShieldCheck, FileCheck2, AlertTriangle, CircleCheck, CircleX, ClipboardList, ArrowLeft, ListChecks, Gauge, ClipboardEdit } from "lucide-react";
 
 export const Route = createFileRoute("/auditoria")({
   head: () => ({ meta: [{ title: "Auditoria (Equipe 5) — FireGuard" }] }),
@@ -32,9 +33,9 @@ const NR_23: Item[] = [
 ];
 
 function statusMeta(s: Status) {
-  if (s === "conforme") return { label: "Conforme", cls: "bg-safe/15 text-safe border-safe/30", icon: CircleCheck };
-  if (s === "parcial") return { label: "Parcial", cls: "bg-alert/20 text-alert-foreground border-alert/40", icon: AlertTriangle };
-  return { label: "Não conforme", cls: "bg-security/15 text-security border-security/30", icon: CircleX };
+  if (s === "conforme") return { label: "Conforme", cls: "bg-emerald-50 text-emerald-700 border-emerald-200", icon: CircleCheck };
+  if (s === "parcial") return { label: "Parcialmente conforme", cls: "bg-amber-50 text-amber-700 border-amber-200", icon: AlertTriangle };
+  return { label: "Não conforme", cls: "bg-red-50 text-red-700 border-red-200", icon: CircleX };
 }
 
 function summary(items: Item[]) {
@@ -46,136 +47,159 @@ function summary(items: Item[]) {
   };
 }
 
+type TabKey = "12962" | "13485" | "nr23";
+
+const TABS: { key: TabKey; label: string; subtitle: string; icon: typeof ShieldCheck; items: Item[] }[] = [
+  { key: "12962", label: "NBR 12962", subtitle: "Inspeção, manutenção e recarga de extintores", icon: FileCheck2, items: NBR_12962 },
+  { key: "13485", label: "NBR 13485", subtitle: "Sinalização e localização dos extintores", icon: ClipboardList, items: NBR_13485 },
+  { key: "nr23", label: "NR-23", subtitle: "Proteção contra incêndios — Ministério do Trabalho", icon: ShieldCheck, items: NR_23 },
+];
+
 function AuditoriaPage() {
+  const [tab, setTab] = useState<TabKey>("12962");
   const all = [...NBR_12962, ...NBR_13485, ...NR_23];
   const total = summary(all);
-  const score = Math.round(((total.conforme + total.parcial * 0.5) / total.total) * 100);
+  const active = TABS.find((t) => t.key === tab)!;
 
   return (
-    <div className="min-h-dvh bg-background">
-      <header className="sticky top-0 z-40 h-16 bg-card/80 backdrop-blur-md border-b border-border px-4 md:px-8 flex items-center justify-between">
-        <div className="flex items-center gap-2 text-sm">
-          <ShieldCheck className="size-5 text-security" />
-          <span className="font-semibold uppercase tracking-tight">Auditoria · Equipe 5</span>
+    <div className="min-h-dvh bg-slate-50 text-slate-900">
+      {/* Topbar */}
+      <header className="sticky top-0 z-40 bg-white/85 backdrop-blur border-b border-slate-100">
+        <div className="max-w-6xl mx-auto h-14 px-4 md:px-8 flex items-center justify-between">
+          <Link
+            to="/login"
+            className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-900 transition-colors"
+          >
+            <ArrowLeft className="size-4" strokeWidth={1.75} /> Voltar para o Login
+          </Link>
+          <div className="flex items-center gap-2 text-xs text-slate-500">
+            <ShieldCheck className="size-4 text-red-600" strokeWidth={1.75} />
+            <span className="hidden sm:inline">Equipe 5 · Conformidade</span>
+          </div>
         </div>
-        <Link
-          to="/login"
-          className="inline-flex items-center gap-2 h-9 px-3 rounded-lg border border-border bg-background hover:bg-secondary text-sm font-medium"
-        >
-          <ArrowLeft className="size-4" /> Voltar ao Login
-        </Link>
       </header>
-      <main className="px-4 md:px-8 py-6 md:py-8 max-w-7xl w-full mx-auto">
-      <div className="mb-6 md:mb-8 flex flex-col items-start gap-4 md:flex-row md:items-center md:justify-between">
-        <div className="min-w-0">
-          <p className="text-xs font-mono uppercase tracking-widest text-muted-foreground mb-1">Equipe 5 · Conformidade</p>
-          <h1 className="text-2xl md:text-3xl font-semibold tracking-tight flex items-center gap-3">
-            <ShieldCheck className="size-7 text-security" /> Painel de Auditoria
-          </h1>
-          <p className="text-sm text-muted-foreground mt-1">Status oficial perante NBR 12962, NBR 13485 e NR-23.</p>
+
+      <main className="max-w-6xl mx-auto px-4 md:px-8 py-8 md:py-12">
+        {/* Título */}
+        <div className="mb-8 md:mb-10">
+          <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-slate-500 mb-2">Portal · Equipe 5</p>
+          <h1 className="text-2xl md:text-4xl font-bold tracking-tight text-slate-900">Portal de Conformidade Regulamentar</h1>
+          <p className="text-sm md:text-base text-slate-500 mt-2">Auditoria Interna de Normas Técnicas — Equipe 5</p>
         </div>
-      </div>
 
-      {/* KPIs */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-8">
-        <Kpi label="Índice de conformidade" value={`${score}%`} accent />
-        <Kpi label="Conformes" value={total.conforme} />
-        <Kpi label="Parciais" value={total.parcial} />
-        <Kpi label="Não conformes" value={total.nc} />
-      </div>
+        {/* KPIs */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-8 md:mb-10">
+          <KpiCard label="NBRs avaliadas" value={3} icon={ListChecks} tone="slate" />
+          <KpiCard label="Itens conformes" value={total.conforme} icon={CircleCheck} tone="emerald" />
+          <KpiCard label="Ajustes pendentes" value={total.parcial + total.nc} icon={ClipboardEdit} tone="red" />
+          <KpiCard label="Índice de conformidade" value={`${Math.round(((total.conforme + total.parcial * 0.5) / total.total) * 100)}%`} icon={Gauge} tone="slate" />
+        </div>
 
-      <div className="space-y-8">
-        <ComplianceSection title="NBR 12962" subtitle="Inspeção, manutenção e recarga de extintores" icon={FileCheck2} items={NBR_12962} />
-        <ComplianceSection title="NBR 13485" subtitle="Sinalização e localização dos extintores" icon={ClipboardList} items={NBR_13485} />
-        <ComplianceSection title="NR-23" subtitle="Proteção contra incêndios — Ministério do Trabalho" icon={ShieldCheck} items={NR_23} />
-      </div>
+        {/* Painel com abas */}
+        <section className="bg-white border border-slate-100 rounded-2xl shadow-sm overflow-hidden">
+          {/* Tabs pílula */}
+          <div className="p-4 md:p-5 border-b border-slate-100 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div className="inline-flex p-1 bg-slate-100 rounded-full self-start">
+              {TABS.map((t) => {
+                const isActive = tab === t.key;
+                return (
+                  <button
+                    key={t.key}
+                    onClick={() => setTab(t.key)}
+                    className={`px-3.5 md:px-4 py-1.5 text-xs md:text-sm font-medium rounded-full transition-colors ${
+                      isActive
+                        ? "bg-white text-slate-900 shadow-sm"
+                        : "text-slate-500 hover:text-slate-900"
+                    }`}
+                  >
+                    {t.label}
+                  </button>
+                );
+              })}
+            </div>
+            <div className="flex items-center gap-2 text-xs text-slate-500">
+              <active.icon className="size-4 text-slate-400" strokeWidth={1.75} />
+              <span>{active.subtitle}</span>
+            </div>
+          </div>
+
+          {/* Desktop table */}
+          <div className="hidden md:block">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-left text-[11px] font-medium uppercase tracking-wider text-slate-500 border-b border-slate-100">
+                  <th className="px-6 py-4 font-medium min-w-[180px]">Requisito</th>
+                  <th className="px-6 py-4 font-medium">Descrição</th>
+                  <th className="px-6 py-4 font-medium min-w-[200px]">Status</th>
+                  <th className="px-6 py-4 font-medium min-w-[220px]">Observação</th>
+                </tr>
+              </thead>
+              <tbody>
+                {active.items.map((it) => {
+                  const m = statusMeta(it.status);
+                  const Ico = m.icon;
+                  return (
+                    <tr key={it.id} className="border-b border-slate-100 last:border-0 align-top hover:bg-slate-50/60 transition-colors">
+                      <td className="px-6 py-4 font-semibold text-slate-900">{it.requisito}</td>
+                      <td className="px-6 py-4 text-slate-600 leading-relaxed">{it.descricao}</td>
+                      <td className="px-6 py-4">
+                        <span className={`inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full border ${m.cls}`}>
+                          <Ico className="size-3.5" strokeWidth={1.75} /> {m.label}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-[13px] text-slate-500 leading-relaxed">{it.evidencia}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Mobile cards */}
+          <div className="md:hidden p-3 space-y-3 bg-slate-50/40">
+            {active.items.map((it) => {
+              const m = statusMeta(it.status);
+              const Ico = m.icon;
+              return (
+                <article key={it.id} className="bg-white border border-slate-100 rounded-xl p-4 shadow-sm">
+                  <header className="flex items-start justify-between gap-3 mb-2">
+                    <p className="font-semibold text-sm text-slate-900 break-words">{it.requisito}</p>
+                    <span className={`shrink-0 inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-full border ${m.cls}`}>
+                      <Ico className="size-3" strokeWidth={1.75} /> {m.label}
+                    </span>
+                  </header>
+                  <p className="text-xs text-slate-600 leading-relaxed mb-3 break-words">{it.descricao}</p>
+                  <p className="text-[10px] font-medium uppercase tracking-wider text-slate-400 mb-0.5">Observação</p>
+                  <p className="text-xs text-slate-500 leading-relaxed break-words">{it.evidencia}</p>
+                </article>
+              );
+            })}
+          </div>
+        </section>
+
+        <p className="text-[11px] text-slate-400 mt-6 text-center">FireGuard · Portal público de auditoria · Atualizado em maio de 2026</p>
       </main>
     </div>
   );
 }
 
-function Kpi({ label, value, accent }: { label: string; value: string | number; accent?: boolean }) {
+type Tone = "slate" | "emerald" | "red";
+
+function KpiCard({ label, value, icon: Icon, tone }: { label: string; value: string | number; icon: typeof ShieldCheck; tone: Tone }) {
+  const toneCls = {
+    slate: "bg-slate-100 text-slate-600",
+    emerald: "bg-emerald-50 text-emerald-600",
+    red: "bg-red-50 text-red-600",
+  }[tone];
   return (
-    <div className={`rounded-xl border p-4 md:p-5 shadow-soft ${accent ? "bg-security text-security-foreground border-security" : "bg-card border-border"}`}>
-      <p className={`text-[11px] font-mono uppercase tracking-widest ${accent ? "text-security-foreground/80" : "text-muted-foreground"}`}>{label}</p>
-      <p className="text-2xl md:text-3xl font-semibold mt-2">{value}</p>
+    <div className="bg-white border border-slate-100 rounded-2xl p-4 md:p-5 shadow-sm">
+      <div className="flex items-center justify-between gap-3 mb-3">
+        <p className="text-[11px] md:text-xs font-medium uppercase tracking-wider text-slate-500 leading-tight">{label}</p>
+        <div className={`size-8 rounded-lg flex items-center justify-center shrink-0 ${toneCls}`}>
+          <Icon className="size-4" strokeWidth={1.75} />
+        </div>
+      </div>
+      <p className="text-2xl md:text-3xl font-bold tracking-tight text-slate-900 tabular-nums">{value}</p>
     </div>
-  );
-}
-
-function ComplianceSection({ title, subtitle, icon: Icon, items }: { title: string; subtitle: string; icon: typeof ShieldCheck; items: Item[] }) {
-  const s = summary(items);
-  return (
-    <section className="bg-card border border-border rounded-xl shadow-soft overflow-hidden">
-      <header className="flex items-start justify-between gap-4 p-5 border-b border-border">
-        <div className="flex items-start gap-3 min-w-0">
-          <div className="size-10 rounded-lg bg-security/10 text-security flex items-center justify-center shrink-0">
-            <Icon className="size-5" />
-          </div>
-          <div className="min-w-0">
-            <h2 className="text-lg font-semibold tracking-tight">{title}</h2>
-            <p className="text-sm text-muted-foreground break-words">{subtitle}</p>
-          </div>
-        </div>
-        <div className="hidden md:flex items-center gap-3 text-xs font-mono shrink-0">
-          <span className="text-safe">{s.conforme} OK</span>
-          <span className="text-alert-foreground">{s.parcial} parc.</span>
-          <span className="text-security">{s.nc} NC</span>
-        </div>
-      </header>
-
-      {/* Desktop table */}
-      <div className="hidden md:block overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead className="bg-muted/40 text-muted-foreground">
-            <tr className="text-left">
-              <th className="px-5 py-3 font-medium min-w-[160px]">Requisito</th>
-              <th className="px-5 py-3 font-medium min-w-[280px]">Descrição</th>
-              <th className="px-5 py-3 font-medium min-w-[160px]">Status</th>
-              <th className="px-5 py-3 font-medium min-w-[220px]">Evidência</th>
-            </tr>
-          </thead>
-          <tbody>
-            {items.map((it) => {
-              const m = statusMeta(it.status);
-              const Ico = m.icon;
-              return (
-                <tr key={it.id} className="border-t border-border align-top">
-                  <td className="px-5 py-3 font-medium">{it.requisito}</td>
-                  <td className="px-5 py-3 text-muted-foreground break-words">{it.descricao}</td>
-                  <td className="px-5 py-3">
-                    <span className={`inline-flex items-center gap-1.5 text-xs font-medium px-2 py-1 rounded-md border ${m.cls}`}>
-                      <Ico className="size-3.5" /> {m.label}
-                    </span>
-                  </td>
-                  <td className="px-5 py-3 text-muted-foreground break-words">{it.evidencia}</td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
-
-      {/* Mobile cards */}
-      <div className="md:hidden p-3 space-y-3">
-        {items.map((it) => {
-          const m = statusMeta(it.status);
-          const Ico = m.icon;
-          return (
-            <div key={it.id} className="border border-border rounded-lg p-4 bg-background text-left">
-              <div className="flex items-start justify-between gap-3 mb-2">
-                <p className="font-semibold text-sm break-words">{it.requisito}</p>
-                <span className={`inline-flex shrink-0 items-center gap-1 text-[11px] font-medium px-2 py-1 rounded-md border ${m.cls}`}>
-                  <Ico className="size-3" /> {m.label}
-                </span>
-              </div>
-              <p className="text-xs text-muted-foreground break-words mb-2">{it.descricao}</p>
-              <p className="text-[11px] font-mono uppercase tracking-wider text-muted-foreground">Evidência</p>
-              <p className="text-xs break-words">{it.evidencia}</p>
-            </div>
-          );
-        })}
-      </div>
-    </section>
   );
 }
