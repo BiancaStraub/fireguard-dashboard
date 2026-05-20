@@ -84,7 +84,7 @@ function LoginPage() {
   };
 
   return (
-    <div className="min-h-dvh grid lg:grid-cols-2 bg-background">
+    <div className="min-h-dvh grid lg:grid-cols-2 bg-background relative pb-10 lg:pb-0">
       <div className="hidden lg:flex flex-col justify-between bg-carbon text-carbon-foreground p-12 relative overflow-hidden">
         <div className="flex items-center gap-3 relative z-10">
           <div className="size-10 bg-security/20 rounded-lg flex items-center justify-center">
@@ -167,6 +167,9 @@ function LoginPage() {
           </div>
         </div>
       </div>
+      <footer className="absolute bottom-3 inset-x-0 text-center text-xs text-muted-foreground px-4 pointer-events-none">
+        Desenvolvido por Grupo 1 (Bianca, Bryan e Luciano) — Projeto Integrador
+      </footer>
     </div>
   );
 }
