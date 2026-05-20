@@ -147,7 +147,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </div>
           {open && (
             <div className="border-t border-border bg-card px-3 py-3 flex flex-col gap-1 max-h-[60vh] overflow-y-auto">
-              {items.slice(3).map((n, i) => {
+              {items.slice(4).map((n, i) => {
                 const active = location.pathname.startsWith(n.to);
                 return (
                   <Link key={`more-${n.to}-${i}`} to={n.to} className={cn(
