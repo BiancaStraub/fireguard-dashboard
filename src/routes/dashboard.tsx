@@ -4,11 +4,12 @@ import { useQuery } from "@tanstack/react-query";
 import { listExtintores, listInspecoes, listEmpresas, statusFor, daysUntil } from "@/lib/fireguard/services";
 import { useMemo, useEffect, useState } from "react";
 import { useAuth } from "@/lib/fireguard/auth";
-import { AlertTriangle, CheckCircle2, Clock, Boxes, Filter } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Clock, Boxes, Filter, ShieldCheck, ArrowRight } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip } from "recharts";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { StatusBadge } from "@/components/fireguard/StatusBadge";
 import { Button } from "@/components/ui/button";
+import { Link } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({ meta: [{ title: "Dashboard — FireGuard" }] }),
@@ -81,6 +82,27 @@ function DashboardPage() {
 
   return (
     <AppShell>
+      {/* CTA: Painel de Auditoria (Equipe 5) */}
+      <Link
+        to="/auditoria"
+        className="group mb-6 flex items-center justify-between gap-4 rounded-2xl border border-security/20 bg-gradient-to-r from-security/10 via-security/5 to-transparent p-4 md:p-5 shadow-soft hover:shadow-glow-red transition-shadow"
+      >
+        <div className="flex items-center gap-3 md:gap-4 min-w-0">
+          <div className="size-11 md:size-12 rounded-xl bg-security text-security-foreground flex items-center justify-center shrink-0 shadow-glow-red">
+            <ShieldCheck className="size-6" strokeWidth={2.25} />
+          </div>
+          <div className="min-w-0">
+            <p className="text-[10px] md:text-xs font-mono uppercase tracking-widest text-security">Equipe 5 · Conformidade</p>
+            <h2 className="text-base md:text-lg font-semibold leading-tight truncate">Painel de Auditoria (Equipe 5)</h2>
+            <p className="hidden sm:block text-xs text-muted-foreground mt-0.5">NBR 12962 · NBR 13485 · NR-23 — abrir verificação de conformidade</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2 text-sm font-medium text-security shrink-0">
+          <span className="hidden md:inline">Abrir</span>
+          <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
+        </div>
+      </Link>
+
       {/* Filter bar */}
       <div className="bg-card border border-border rounded-2xl shadow-soft p-4 mb-6 flex flex-col md:flex-row md:items-center gap-3">
         <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-muted-foreground"><Filter className="size-4" /> Filtros</div>
