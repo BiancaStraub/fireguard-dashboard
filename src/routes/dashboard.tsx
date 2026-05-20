@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { listExtintores, listInspecoes, listEmpresas, statusFor, daysUntil } from "@/lib/fireguard/services";
 import { useMemo, useEffect, useState } from "react";
 import { useAuth } from "@/lib/fireguard/auth";
-import { AlertTriangle, CheckCircle2, Clock, Boxes, Filter, ShieldCheck, ArrowRight } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Clock, Boxes, Filter, ShieldCheck } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip } from "recharts";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { StatusBadge } from "@/components/fireguard/StatusBadge";
