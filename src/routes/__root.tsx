@@ -64,9 +64,13 @@ export const Route = createRootRoute({
 });
 
 function RootShell({ children }: { children: React.ReactNode }) {
+  // Inline, synchronous theme bootstrap to avoid FOUC / flicker.
+  // Reads localStorage prefs BEFORE first paint and applies .dark only if user opted in.
+  const themeBootstrap = `(function(){try{var r=document.documentElement;r.classList.remove('dark');var raw=localStorage.getItem('fireguard:prefs');if(raw){var p=JSON.parse(raw);if(p&&p.darkMode===true){r.classList.add('dark');}}}catch(e){}})();`;
   return (
-    <html lang="pt-BR" className="dark">
+    <html lang="pt-BR">
       <head>
+        <script dangerouslySetInnerHTML={{ __html: themeBootstrap }} />
         <HeadContent />
       </head>
       <body>
