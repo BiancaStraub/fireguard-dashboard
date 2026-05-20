@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Flame, Shield, ClipboardCheck } from "lucide-react";
+import { Flame, Shield, ClipboardCheck, ShieldCheck } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/login")({
@@ -152,6 +153,17 @@ function LoginPage() {
               </Button>
             </div>
             <p className="text-[10px] text-muted-foreground mt-2 leading-relaxed">Login com 1 clique — ideal para apresentação. Admin → Dashboard · Inspetor → Inspeção.</p>
+          </div>
+
+          <div className="mt-6">
+            <Link
+              to="/auditoria"
+              className="w-full inline-flex items-center justify-center gap-2 h-11 rounded-xl border-2 border-red-600 bg-transparent text-red-600 hover:bg-red-600 hover:text-white font-semibold transition-colors"
+            >
+              <ShieldCheck className="size-4" strokeWidth={2.5} />
+              Acessar Painel de Auditoria (Equipe 5)
+            </Link>
+            <p className="text-[10px] text-muted-foreground mt-2 leading-relaxed text-center">Acesso público · NBR 12962 · NBR 13485 · NR-23</p>
           </div>
         </div>
       </div>

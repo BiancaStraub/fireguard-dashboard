@@ -1,5 +1,4 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { AppShell } from "@/components/fireguard/AppShell";
 import { ShieldCheck, FileCheck2, AlertTriangle, CircleCheck, CircleX, ClipboardList, ArrowLeft } from "lucide-react";
 
 export const Route = createFileRoute("/auditoria")({
@@ -53,7 +52,20 @@ function AuditoriaPage() {
   const score = Math.round(((total.conforme + total.parcial * 0.5) / total.total) * 100);
 
   return (
-    <AppShell>
+    <div className="min-h-dvh bg-background">
+      <header className="sticky top-0 z-40 h-16 bg-card/80 backdrop-blur-md border-b border-border px-4 md:px-8 flex items-center justify-between">
+        <div className="flex items-center gap-2 text-sm">
+          <ShieldCheck className="size-5 text-security" />
+          <span className="font-semibold uppercase tracking-tight">Auditoria · Equipe 5</span>
+        </div>
+        <Link
+          to="/login"
+          className="inline-flex items-center gap-2 h-9 px-3 rounded-lg border border-border bg-background hover:bg-secondary text-sm font-medium"
+        >
+          <ArrowLeft className="size-4" /> Voltar ao Login
+        </Link>
+      </header>
+      <main className="px-4 md:px-8 py-6 md:py-8 max-w-7xl w-full mx-auto">
       <div className="mb-6 md:mb-8 flex flex-col items-start gap-4 md:flex-row md:items-center md:justify-between">
         <div className="min-w-0">
           <p className="text-xs font-mono uppercase tracking-widest text-muted-foreground mb-1">Equipe 5 · Conformidade</p>
@@ -62,13 +74,6 @@ function AuditoriaPage() {
           </h1>
           <p className="text-sm text-muted-foreground mt-1">Status oficial perante NBR 12962, NBR 13485 e NR-23.</p>
         </div>
-        <Link
-          to="/"
-          className="w-full md:w-auto inline-flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 transition-colors text-white font-semibold px-4 py-2 rounded-xl shadow-soft"
-        >
-          <ArrowLeft className="size-4" strokeWidth={2.5} />
-          <span>Voltar ao FireGuard</span>
-        </Link>
       </div>
 
       {/* KPIs */}
@@ -84,7 +89,8 @@ function AuditoriaPage() {
         <ComplianceSection title="NBR 13485" subtitle="Sinalização e localização dos extintores" icon={ClipboardList} items={NBR_13485} />
         <ComplianceSection title="NR-23" subtitle="Proteção contra incêndios — Ministério do Trabalho" icon={ShieldCheck} items={NR_23} />
       </div>
-    </AppShell>
+      </main>
+    </div>
   );
 }
 
