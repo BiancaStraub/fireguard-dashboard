@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from "@tanstack/react-router";
-import { Flame, LayoutDashboard, Building2, Wrench, ClipboardCheck, CalendarClock, BellRing, LogOut, Menu, X, Users, Settings as SettingsIcon, ShieldCheck, Sun, Moon, ArrowLeft } from "lucide-react";
+import { Flame, LayoutDashboard, Building2, Wrench, ClipboardCheck, CalendarClock, BellRing, LogOut, Menu, X, Users, Settings as SettingsIcon, Sun, Moon } from "lucide-react";
 import { useEffect, useState, useCallback } from "react";
 import { cn } from "@/lib/utils";
 import { useAuth, type Role } from "@/lib/fireguard/auth";
@@ -63,7 +63,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const nome = role === "admin" ? "Administrador" : role === "subadmin" ? "Subadministrador" : (profile?.nome ?? user.email ?? "Usuário");
   const initials = nome.split(" ").map((n) => n[0]).slice(0, 2).join("").toUpperCase();
   const hoje = new Date().toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long", year: "numeric" });
-  const onAuditoria = location.pathname.startsWith("/auditoria");
 
   return (
     <div className="min-h-dvh bg-background flex">
@@ -83,12 +82,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </Link>
           );
         })}
-        <Link to="/auditoria" title="Auditoria (Equipe 5)" className={cn(
-          "size-11 rounded-xl flex items-center justify-center transition-colors",
-          onAuditoria ? "bg-security/15 text-security" : "text-muted-foreground hover:bg-secondary hover:text-foreground"
-        )}>
-          <ShieldCheck className="size-5" />
-        </Link>
         <div className="mt-auto">
           <button onClick={async () => { await signOut(); navigate({ to: "/login" }); }} className="size-11 rounded-xl flex items-center justify-center text-muted-foreground hover:bg-secondary hover:text-foreground">
             <LogOut className="size-5" />
@@ -105,21 +98,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <span className="font-semibold uppercase tracking-tight">FireGuard</span>
           </div>
           <div className="hidden md:block">
-            <p className="text-xs font-mono uppercase tracking-widest text-muted-foreground">
-              {onAuditoria ? "Auditoria · Equipe 5 · NBR 12962 / 13485" : "FireGuard · NBR 13485 / 12693"}
-            </p>
+            <p className="text-xs font-mono uppercase tracking-widest text-muted-foreground">FireGuard · NBR 13485 / 12693</p>
             <p className="text-sm font-medium capitalize">{hoje}</p>
           </div>
           <div className="flex items-center gap-2 md:gap-3">
-            {onAuditoria ? (
-              <Link to="/dashboard" className="hidden sm:inline-flex items-center gap-2 h-9 px-3 rounded-lg border border-border bg-background hover:bg-secondary text-sm font-medium">
-                <ArrowLeft className="size-4" /> Voltar para FireGuard
-              </Link>
-            ) : (
-              <Link to="/auditoria" className="hidden sm:inline-flex items-center gap-2 h-9 px-3 rounded-lg bg-security text-security-foreground hover:opacity-90 text-sm font-medium">
-                <ShieldCheck className="size-4" /> Auditoria (Equipe 5)
-              </Link>
-            )}
             <button
               onClick={toggleTheme}
               title={dark ? "Tema claro" : "Tema escuro"}
@@ -156,13 +138,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 </Link>
               );
             })}
-            <Link to="/auditoria" className={cn(
-              "flex-1 flex flex-col items-center gap-0.5 py-1.5 rounded-lg",
-              onAuditoria ? "text-security" : "text-muted-foreground"
-            )}>
-              <ShieldCheck className="size-5" />
-              <span className="text-[10px] font-medium leading-none truncate max-w-[64px]">Auditoria</span>
-            </Link>
             <button onClick={() => setOpen(!open)} className={cn(
               "flex-1 flex flex-col items-center gap-0.5 py-1.5 rounded-lg text-muted-foreground"
             )}>
@@ -172,7 +147,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </div>
           {open && (
             <div className="border-t border-border bg-card px-3 py-3 flex flex-col gap-1 max-h-[60vh] overflow-y-auto">
-              {items.slice(4).map((n, i) => {
+              {items.slice(3).map((n, i) => {
                 const active = location.pathname.startsWith(n.to);
                 return (
                   <Link key={`more-${n.to}-${i}`} to={n.to} className={cn(
