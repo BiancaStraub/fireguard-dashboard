@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as VencimentosRouteImport } from './routes/vencimentos'
+import { Route as SolicitacoesRouteImport } from './routes/solicitacoes'
 import { Route as RelatoriosRouteImport } from './routes/relatorios'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as InventarioRouteImport } from './routes/inventario'
@@ -18,7 +19,6 @@ import { Route as EquipeRouteImport } from './routes/equipe'
 import { Route as EmpresasRouteImport } from './routes/empresas'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ConfiguracoesRouteImport } from './routes/configuracoes'
-import { Route as AuditoriaRouteImport } from './routes/auditoria'
 import { Route as AlertasRouteImport } from './routes/alertas'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CadastroIdRouteImport } from './routes/cadastro.$id'
@@ -26,6 +26,11 @@ import { Route as CadastroIdRouteImport } from './routes/cadastro.$id'
 const VencimentosRoute = VencimentosRouteImport.update({
   id: '/vencimentos',
   path: '/vencimentos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SolicitacoesRoute = SolicitacoesRouteImport.update({
+  id: '/solicitacoes',
+  path: '/solicitacoes',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RelatoriosRoute = RelatoriosRouteImport.update({
@@ -68,11 +73,6 @@ const ConfiguracoesRoute = ConfiguracoesRouteImport.update({
   path: '/configuracoes',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuditoriaRoute = AuditoriaRouteImport.update({
-  id: '/auditoria',
-  path: '/auditoria',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AlertasRoute = AlertasRouteImport.update({
   id: '/alertas',
   path: '/alertas',
@@ -92,7 +92,6 @@ const CadastroIdRoute = CadastroIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/alertas': typeof AlertasRoute
-  '/auditoria': typeof AuditoriaRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/dashboard': typeof DashboardRoute
   '/empresas': typeof EmpresasRoute
@@ -101,13 +100,13 @@ export interface FileRoutesByFullPath {
   '/inventario': typeof InventarioRoute
   '/login': typeof LoginRoute
   '/relatorios': typeof RelatoriosRoute
+  '/solicitacoes': typeof SolicitacoesRoute
   '/vencimentos': typeof VencimentosRoute
   '/cadastro/$id': typeof CadastroIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/alertas': typeof AlertasRoute
-  '/auditoria': typeof AuditoriaRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/dashboard': typeof DashboardRoute
   '/empresas': typeof EmpresasRoute
@@ -116,6 +115,7 @@ export interface FileRoutesByTo {
   '/inventario': typeof InventarioRoute
   '/login': typeof LoginRoute
   '/relatorios': typeof RelatoriosRoute
+  '/solicitacoes': typeof SolicitacoesRoute
   '/vencimentos': typeof VencimentosRoute
   '/cadastro/$id': typeof CadastroIdRoute
 }
@@ -123,7 +123,6 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/alertas': typeof AlertasRoute
-  '/auditoria': typeof AuditoriaRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/dashboard': typeof DashboardRoute
   '/empresas': typeof EmpresasRoute
@@ -132,6 +131,7 @@ export interface FileRoutesById {
   '/inventario': typeof InventarioRoute
   '/login': typeof LoginRoute
   '/relatorios': typeof RelatoriosRoute
+  '/solicitacoes': typeof SolicitacoesRoute
   '/vencimentos': typeof VencimentosRoute
   '/cadastro/$id': typeof CadastroIdRoute
 }
@@ -140,7 +140,6 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/alertas'
-    | '/auditoria'
     | '/configuracoes'
     | '/dashboard'
     | '/empresas'
@@ -149,13 +148,13 @@ export interface FileRouteTypes {
     | '/inventario'
     | '/login'
     | '/relatorios'
+    | '/solicitacoes'
     | '/vencimentos'
     | '/cadastro/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/alertas'
-    | '/auditoria'
     | '/configuracoes'
     | '/dashboard'
     | '/empresas'
@@ -164,13 +163,13 @@ export interface FileRouteTypes {
     | '/inventario'
     | '/login'
     | '/relatorios'
+    | '/solicitacoes'
     | '/vencimentos'
     | '/cadastro/$id'
   id:
     | '__root__'
     | '/'
     | '/alertas'
-    | '/auditoria'
     | '/configuracoes'
     | '/dashboard'
     | '/empresas'
@@ -179,6 +178,7 @@ export interface FileRouteTypes {
     | '/inventario'
     | '/login'
     | '/relatorios'
+    | '/solicitacoes'
     | '/vencimentos'
     | '/cadastro/$id'
   fileRoutesById: FileRoutesById
@@ -186,7 +186,6 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AlertasRoute: typeof AlertasRoute
-  AuditoriaRoute: typeof AuditoriaRoute
   ConfiguracoesRoute: typeof ConfiguracoesRoute
   DashboardRoute: typeof DashboardRoute
   EmpresasRoute: typeof EmpresasRoute
@@ -195,6 +194,7 @@ export interface RootRouteChildren {
   InventarioRoute: typeof InventarioRoute
   LoginRoute: typeof LoginRoute
   RelatoriosRoute: typeof RelatoriosRoute
+  SolicitacoesRoute: typeof SolicitacoesRoute
   VencimentosRoute: typeof VencimentosRoute
   CadastroIdRoute: typeof CadastroIdRoute
 }
@@ -206,6 +206,13 @@ declare module '@tanstack/react-router' {
       path: '/vencimentos'
       fullPath: '/vencimentos'
       preLoaderRoute: typeof VencimentosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/solicitacoes': {
+      id: '/solicitacoes'
+      path: '/solicitacoes'
+      fullPath: '/solicitacoes'
+      preLoaderRoute: typeof SolicitacoesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/relatorios': {
@@ -264,13 +271,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ConfiguracoesRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/auditoria': {
-      id: '/auditoria'
-      path: '/auditoria'
-      fullPath: '/auditoria'
-      preLoaderRoute: typeof AuditoriaRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/alertas': {
       id: '/alertas'
       path: '/alertas'
@@ -298,7 +298,6 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AlertasRoute: AlertasRoute,
-  AuditoriaRoute: AuditoriaRoute,
   ConfiguracoesRoute: ConfiguracoesRoute,
   DashboardRoute: DashboardRoute,
   EmpresasRoute: EmpresasRoute,
@@ -307,6 +306,7 @@ const rootRouteChildren: RootRouteChildren = {
   InventarioRoute: InventarioRoute,
   LoginRoute: LoginRoute,
   RelatoriosRoute: RelatoriosRoute,
+  SolicitacoesRoute: SolicitacoesRoute,
   VencimentosRoute: VencimentosRoute,
   CadastroIdRoute: CadastroIdRoute,
 }

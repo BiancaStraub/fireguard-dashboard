@@ -1,19 +1,15 @@
 import { Link, useLocation, useNavigate } from "@tanstack/react-router";
-import { Flame, LayoutDashboard, Building2, Wrench, ClipboardCheck, CalendarClock, BellRing, LogOut, Menu, X, Users, Settings as SettingsIcon, Sun, Moon } from "lucide-react";
+import { Flame, LayoutDashboard, Building2, BellRing, LogOut, Menu, X, Users, Sun, Moon, Inbox } from "lucide-react";
 import { useEffect, useState, useCallback } from "react";
 import { cn } from "@/lib/utils";
 import { useAuth, type Role } from "@/lib/fireguard/auth";
 import { NotificationBell } from "@/components/fireguard/NotificationBell";
 
 const NAV: { to: string; label: string; icon: typeof LayoutDashboard; roles: Role[] }[] = [
-  { to: "/dashboard", label: "Visão Geral", icon: LayoutDashboard, roles: ["admin", "subadmin"] },
   { to: "/empresas", label: "Extintores", icon: Building2, roles: ["admin", "subadmin", "inspetor"] },
-  { to: "/relatorios", label: "Manutenções", icon: Wrench, roles: ["admin", "subadmin"] },
-  { to: "/inspecao", label: "Inspeções", icon: ClipboardCheck, roles: ["admin", "subadmin", "inspetor"] },
-  { to: "/vencimentos", label: "Vencimentos", icon: CalendarClock, roles: ["admin", "subadmin"] },
   { to: "/alertas", label: "Alertas", icon: BellRing, roles: ["admin", "subadmin"] },
   { to: "/equipe", label: "Equipe", icon: Users, roles: ["admin"] },
-  { to: "/configuracoes", label: "Configurações", icon: SettingsIcon, roles: ["admin"] },
+  { to: "/solicitacoes", label: "Solicitações", icon: Inbox, roles: ["admin", "subadmin", "inspetor"] },
 ];
 
 const PREFS_KEY = "fireguard:prefs";
@@ -68,7 +64,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     <div className="min-h-dvh bg-background flex">
       {/* Sidebar desktop */}
       <aside className="hidden md:flex w-20 shrink-0 flex-col items-center py-5 gap-2 bg-card border-r border-border sticky top-0 h-dvh">
-        <Link to="/dashboard" className="size-11 bg-security rounded-xl flex items-center justify-center shadow-glow-red mb-3">
+        <Link to="/empresas" className="size-11 bg-security rounded-xl flex items-center justify-center shadow-glow-red mb-3">
           <Flame className="size-6 text-security-foreground" strokeWidth={2.5} />
         </Link>
         {items.map((n, i) => {
