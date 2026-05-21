@@ -148,7 +148,7 @@ function DashboardPage() {
             ) : (
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={porSetor}>
-                  <XAxis dataKey="setor" tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} interval={0} angle={-20} textAnchor="end" height={60} />
+                  <XAxis dataKey="setor" tick={false} axisLine={false} height={8} />
                   <YAxis tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} />
                   <Tooltip contentStyle={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 8, fontSize: 12 }} />
                   <Bar dataKey="total" fill="var(--carbon)" radius={[6, 6, 0, 0]} maxBarSize={48} />
