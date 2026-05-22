@@ -81,14 +81,9 @@ function HomeAuditoriaPage() {
             <ShieldCheck className="size-4 text-red-600" strokeWidth={1.75} />
             <span className="hidden sm:inline">Equipe 5 · Conformidade</span>
           </div>
-          <Link
-            to="/login"
-            title="Acesso Colaborador"
-            className="inline-flex items-center gap-1.5 text-[11px] font-medium text-slate-400 hover:text-slate-700 transition-colors"
-          >
-            <Lock className="size-3.5" strokeWidth={1.75} />
-            <span className="hidden sm:inline">Acesso Colaborador</span>
-          </Link>
+          <span className="text-[11px] font-medium uppercase tracking-[0.18em] text-slate-400">
+            Portal NR-23
+          </span>
         </div>
       </header>
 
