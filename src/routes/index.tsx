@@ -83,10 +83,11 @@ function HomeAuditoriaPage() {
           </div>
           <Link
             to="/login"
-            className="inline-flex items-center gap-2 text-xs md:text-sm font-medium px-3 md:px-4 h-9 rounded-lg border border-slate-900 bg-slate-900 text-white hover:bg-slate-800 transition-colors"
+            title="Acesso Colaborador"
+            className="inline-flex items-center gap-1.5 text-[11px] font-medium text-slate-400 hover:text-slate-700 transition-colors"
           >
-            <Lock className="size-3.5" strokeWidth={2} />
-            Acesso Restrito · Fireguard
+            <Lock className="size-3.5" strokeWidth={1.75} />
+            <span className="hidden sm:inline">Acesso Colaborador</span>
           </Link>
         </div>
       </header>
@@ -197,6 +198,16 @@ function HomeAuditoriaPage() {
           </div>
         </section>
       </main>
+
+      <footer className="border-t border-slate-100 bg-white">
+        <div className="max-w-6xl mx-auto px-4 md:px-8 py-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] text-slate-400">
+          <p>© 2026 Equipe 5 · Portal de Conformidade NR-23 / NBR 12962 / NBR 13485</p>
+          <Link to="/login" className="inline-flex items-center gap-1.5 hover:text-slate-700 transition-colors">
+            <Lock className="size-3" strokeWidth={1.75} />
+            Acesso Colaborador (Fireguard)
+          </Link>
+        </div>
+      </footer>
 
       <ContactModal open={openModal} onOpenChange={setOpenModal} />
     </div>

@@ -1,15 +1,18 @@
 import { Link, useLocation, useNavigate } from "@tanstack/react-router";
-import { Flame, LayoutDashboard, Building2, BellRing, LogOut, Menu, X, Users, Sun, Moon, Inbox } from "lucide-react";
+import { Flame, LayoutDashboard, Building2, BellRing, LogOut, Menu, X, Users, Sun, Moon, Inbox, FileText, Settings } from "lucide-react";
 import { useEffect, useState, useCallback } from "react";
 import { cn } from "@/lib/utils";
 import { useAuth, type Role } from "@/lib/fireguard/auth";
 import { NotificationBell } from "@/components/fireguard/NotificationBell";
 
 const NAV: { to: string; label: string; icon: typeof LayoutDashboard; roles: Role[] }[] = [
+  { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard, roles: ["admin", "subadmin"] },
   { to: "/empresas", label: "Extintores", icon: Building2, roles: ["admin", "subadmin", "inspetor"] },
   { to: "/alertas", label: "Alertas", icon: BellRing, roles: ["admin", "subadmin"] },
   { to: "/equipe", label: "Equipe", icon: Users, roles: ["admin"] },
+  { to: "/relatorios", label: "Relatórios", icon: FileText, roles: ["admin", "subadmin", "inspetor"] },
   { to: "/solicitacoes", label: "Solicitações", icon: Inbox, roles: ["admin", "subadmin", "inspetor"] },
+  { to: "/configuracoes", label: "Configurações", icon: Settings, roles: ["admin", "subadmin", "inspetor"] },
 ];
 
 const PREFS_KEY = "fireguard:prefs";
