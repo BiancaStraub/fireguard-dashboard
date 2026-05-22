@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AppShell } from "@/components/fireguard/AppShell";
-import { Settings, Bell, Palette, Mail } from "lucide-react";
+import { Settings, Bell, Mail } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useEffect, useState } from "react";
@@ -14,16 +14,10 @@ export const Route = createFileRoute("/configuracoes")({
 type Prefs = {
   email30: boolean;
   emailVencido: boolean;
-  darkMode: boolean;
 };
 
-const DEFAULTS: Prefs = { email30: true, emailVencido: true, darkMode: false };
+const DEFAULTS: Prefs = { email30: true, emailVencido: true };
 const KEY = "fireguard:prefs";
-
-function applyDarkMode(on: boolean) {
-  const root = document.documentElement;
-  if (on) root.classList.add("dark"); else root.classList.remove("dark");
-}
 
 function ConfiguracoesPage() {
   const [prefs, setPrefs] = useState<Prefs>(DEFAULTS);
@@ -34,7 +28,6 @@ function ConfiguracoesPage() {
       if (raw) {
         const p = { ...DEFAULTS, ...JSON.parse(raw) } as Prefs;
         setPrefs(p);
-        applyDarkMode(p.darkMode);
       }
     } catch { /* ignore */ }
   }, []);
@@ -43,7 +36,6 @@ function ConfiguracoesPage() {
     const next = { ...prefs, ...patch };
     setPrefs(next);
     localStorage.setItem(KEY, JSON.stringify(next));
-    if ("darkMode" in patch) applyDarkMode(next.darkMode);
     toast.success("Preferência atualizada");
   };
 
@@ -81,18 +73,6 @@ function ConfiguracoesPage() {
           </div>
         </section>
 
-        <section className="bg-card border border-border rounded-xl p-6 shadow-soft">
-          <div className="flex items-center gap-2 mb-4">
-            <Palette className="size-5 text-security" />
-            <h2 className="font-semibold text-lg">Aparência</h2>
-          </div>
-          <ToggleRow
-            title="Forçar Dark Mode"
-            desc="Mantém a interface no tema escuro independente do sistema."
-            checked={prefs.darkMode}
-            onChange={(v) => update({ darkMode: v })}
-          />
-        </section>
       </div>
     </AppShell>
   );
