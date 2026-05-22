@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as VencimentosRouteImport } from './routes/vencimentos'
 import { Route as SolicitacoesRouteImport } from './routes/solicitacoes'
+import { Route as ScannerRouteImport } from './routes/scanner'
 import { Route as RelatoriosRouteImport } from './routes/relatorios'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as InventarioRouteImport } from './routes/inventario'
@@ -31,6 +32,11 @@ const VencimentosRoute = VencimentosRouteImport.update({
 const SolicitacoesRoute = SolicitacoesRouteImport.update({
   id: '/solicitacoes',
   path: '/solicitacoes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ScannerRoute = ScannerRouteImport.update({
+  id: '/scanner',
+  path: '/scanner',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RelatoriosRoute = RelatoriosRouteImport.update({
@@ -100,6 +106,7 @@ export interface FileRoutesByFullPath {
   '/inventario': typeof InventarioRoute
   '/login': typeof LoginRoute
   '/relatorios': typeof RelatoriosRoute
+  '/scanner': typeof ScannerRoute
   '/solicitacoes': typeof SolicitacoesRoute
   '/vencimentos': typeof VencimentosRoute
   '/cadastro/$id': typeof CadastroIdRoute
@@ -115,6 +122,7 @@ export interface FileRoutesByTo {
   '/inventario': typeof InventarioRoute
   '/login': typeof LoginRoute
   '/relatorios': typeof RelatoriosRoute
+  '/scanner': typeof ScannerRoute
   '/solicitacoes': typeof SolicitacoesRoute
   '/vencimentos': typeof VencimentosRoute
   '/cadastro/$id': typeof CadastroIdRoute
@@ -131,6 +139,7 @@ export interface FileRoutesById {
   '/inventario': typeof InventarioRoute
   '/login': typeof LoginRoute
   '/relatorios': typeof RelatoriosRoute
+  '/scanner': typeof ScannerRoute
   '/solicitacoes': typeof SolicitacoesRoute
   '/vencimentos': typeof VencimentosRoute
   '/cadastro/$id': typeof CadastroIdRoute
@@ -148,6 +157,7 @@ export interface FileRouteTypes {
     | '/inventario'
     | '/login'
     | '/relatorios'
+    | '/scanner'
     | '/solicitacoes'
     | '/vencimentos'
     | '/cadastro/$id'
@@ -163,6 +173,7 @@ export interface FileRouteTypes {
     | '/inventario'
     | '/login'
     | '/relatorios'
+    | '/scanner'
     | '/solicitacoes'
     | '/vencimentos'
     | '/cadastro/$id'
@@ -178,6 +189,7 @@ export interface FileRouteTypes {
     | '/inventario'
     | '/login'
     | '/relatorios'
+    | '/scanner'
     | '/solicitacoes'
     | '/vencimentos'
     | '/cadastro/$id'
@@ -194,6 +206,7 @@ export interface RootRouteChildren {
   InventarioRoute: typeof InventarioRoute
   LoginRoute: typeof LoginRoute
   RelatoriosRoute: typeof RelatoriosRoute
+  ScannerRoute: typeof ScannerRoute
   SolicitacoesRoute: typeof SolicitacoesRoute
   VencimentosRoute: typeof VencimentosRoute
   CadastroIdRoute: typeof CadastroIdRoute
@@ -213,6 +226,13 @@ declare module '@tanstack/react-router' {
       path: '/solicitacoes'
       fullPath: '/solicitacoes'
       preLoaderRoute: typeof SolicitacoesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/scanner': {
+      id: '/scanner'
+      path: '/scanner'
+      fullPath: '/scanner'
+      preLoaderRoute: typeof ScannerRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/relatorios': {
@@ -306,6 +326,7 @@ const rootRouteChildren: RootRouteChildren = {
   InventarioRoute: InventarioRoute,
   LoginRoute: LoginRoute,
   RelatoriosRoute: RelatoriosRoute,
+  ScannerRoute: ScannerRoute,
   SolicitacoesRoute: SolicitacoesRoute,
   VencimentosRoute: VencimentosRoute,
   CadastroIdRoute: CadastroIdRoute,
