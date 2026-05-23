@@ -21,6 +21,7 @@ import { Route as EmpresasRouteImport } from './routes/empresas'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ConfiguracoesRouteImport } from './routes/configuracoes'
 import { Route as AlertasRouteImport } from './routes/alertas'
+import { Route as IndexRouteImport } from './routes/index'
 import { Route as CadastroIdRouteImport } from './routes/cadastro.$id'
 
 const VencimentosRoute = VencimentosRouteImport.update({
@@ -83,6 +84,11 @@ const AlertasRoute = AlertasRouteImport.update({
   path: '/alertas',
   getParentRoute: () => rootRouteImport,
 } as any)
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CadastroIdRoute = CadastroIdRouteImport.update({
   id: '/cadastro/$id',
   path: '/cadastro/$id',
@@ -90,6 +96,7 @@ const CadastroIdRoute = CadastroIdRouteImport.update({
 } as any)
 
 export interface FileRoutesByFullPath {
+  '/': typeof IndexRoute
   '/alertas': typeof AlertasRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/dashboard': typeof DashboardRoute
@@ -105,6 +112,7 @@ export interface FileRoutesByFullPath {
   '/cadastro/$id': typeof CadastroIdRoute
 }
 export interface FileRoutesByTo {
+  '/': typeof IndexRoute
   '/alertas': typeof AlertasRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/dashboard': typeof DashboardRoute
@@ -121,6 +129,7 @@ export interface FileRoutesByTo {
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
+  '/': typeof IndexRoute
   '/alertas': typeof AlertasRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/dashboard': typeof DashboardRoute
@@ -138,6 +147,7 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
+    | '/'
     | '/alertas'
     | '/configuracoes'
     | '/dashboard'
@@ -153,6 +163,7 @@ export interface FileRouteTypes {
     | '/cadastro/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/'
     | '/alertas'
     | '/configuracoes'
     | '/dashboard'
@@ -168,6 +179,7 @@ export interface FileRouteTypes {
     | '/cadastro/$id'
   id:
     | '__root__'
+    | '/'
     | '/alertas'
     | '/configuracoes'
     | '/dashboard'
@@ -184,6 +196,7 @@ export interface FileRouteTypes {
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
+  IndexRoute: typeof IndexRoute
   AlertasRoute: typeof AlertasRoute
   ConfiguracoesRoute: typeof ConfiguracoesRoute
   DashboardRoute: typeof DashboardRoute
@@ -285,6 +298,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AlertasRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/cadastro/$id': {
       id: '/cadastro/$id'
       path: '/cadastro/$id'
@@ -296,6 +316,7 @@ declare module '@tanstack/react-router' {
 }
 
 const rootRouteChildren: RootRouteChildren = {
+  IndexRoute: IndexRoute,
   AlertasRoute: AlertasRoute,
   ConfiguracoesRoute: ConfiguracoesRoute,
   DashboardRoute: DashboardRoute,

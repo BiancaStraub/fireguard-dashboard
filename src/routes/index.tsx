@@ -69,7 +69,7 @@ function LandingPage() {
     } catch { /* noop */ }
   };
 
-  const scrollTo = (ref: React.RefObject<HTMLElement>) => {
+  const scrollTo = (ref: React.RefObject<HTMLElement | null>) => {
     ref.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
