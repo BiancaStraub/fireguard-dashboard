@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import {
   ShieldCheck, ClipboardCheck, BadgeCheck, ArrowRight, ArrowDown,
   Sun, Moon, CircleCheck, AlertTriangle, CircleX, Flame, Mail, Phone, User, MessageSquare,
+  Lock,
 } from "lucide-react";
 
 export const Route = createFileRoute("/")({
