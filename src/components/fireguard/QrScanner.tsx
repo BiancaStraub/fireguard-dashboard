@@ -69,13 +69,23 @@ export function QrScanner({ open, onClose, onDetected }: Props) {
     };
     const onScanFailure = () => {};
 
-    scannerInstance
-      .start(
-        { facingMode: { ideal: "environment" } },
-        { fps: 10, qrbox: { width: 240, height: 240 } },
-        onScanSuccess,
-        onScanFailure,
-      )
+    // Force the native permission prompt with an explicit getUserMedia call
+    // tied to the user gesture (button click). Some browsers (Safari iOS,
+    // Chrome Android) won't show the prompt if the camera is started only
+    // through a third-party library on page load.
+    navigator.mediaDevices
+      .getUserMedia({ video: { facingMode: { ideal: "environment" } } })
+      .then((stream) => {
+        // Release the probe stream — Html5Qrcode opens its own.
+        stream.getTracks().forEach((t) => t.stop());
+        if (cancelled || !scannerInstance) return Promise.resolve();
+        return scannerInstance.start(
+          { facingMode: { ideal: "environment" } },
+          { fps: 10, qrbox: { width: 240, height: 240 } },
+          onScanSuccess,
+          onScanFailure,
+        );
+      })
       .then(() => {
         if (cancelled && scannerInstance) {
           const s = scannerInstance;
@@ -87,9 +97,9 @@ export function QrScanner({ open, onClose, onDetected }: Props) {
         console.error(err);
         const name = (err as { name?: string })?.name ?? "";
         if (name === "NotAllowedError" || name === "PermissionDeniedError") {
-          setPermissionError("Permissão negada. Libere o acesso à câmera nas configurações do navegador.");
+          setPermissionError("Permissão negada ou câmera não encontrada. Por favor, libere o acesso nas configurações do navegador.");
         } else if (name === "NotFoundError" || name === "DevicesNotFoundError") {
-          setPermissionError("Nenhuma câmera encontrada neste dispositivo. Use o modo manual abaixo.");
+          setPermissionError("Permissão negada ou câmera não encontrada. Por favor, libere o acesso nas configurações do navegador.");
         } else {
           setPermissionError("Não foi possível iniciar a câmera. Tente novamente ou use o modo manual.");
         }
@@ -139,8 +149,8 @@ export function QrScanner({ open, onClose, onDetected }: Props) {
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 p-6 text-carbon-foreground text-center">
               {permissionError ? (
                 <>
-                  <AlertTriangle className="size-8 text-amber-400" />
-                  <p className="text-sm">{permissionError}</p>
+                  <AlertTriangle className="size-8 text-red-500" />
+                  <p className="text-sm text-red-400 font-medium">{permissionError}</p>
                   <Button
                     type="button"
                     size="lg"
@@ -163,7 +173,7 @@ export function QrScanner({ open, onClose, onDetected }: Props) {
                     disabled={starting}
                     className="bg-security text-security-foreground hover:bg-security/90 px-6 py-6 text-base"
                   >
-                    <Camera className="size-5" /> Ativar Câmera
+                    <Camera className="size-5" /> Permitir e Abrir Câmera
                   </Button>
                 </>
               )}
