@@ -3,7 +3,6 @@ import { Html5Qrcode } from "html5-qrcode";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Camera, X, AlertTriangle } from "lucide-react";
-import { toast } from "sonner";
 
 interface Props {
   open: boolean;
