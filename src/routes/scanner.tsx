@@ -24,9 +24,7 @@ function ScannerPage() {
     try {
       const found = await getExtintorByCodigo(code);
       if (found) {
-        toast.warning(`Atenção: o extintor ${code} já está cadastrado no sistema!`, {
-          description: "Abrindo a ficha do equipamento para nova inspeção.",
-        });
+        toast.success(`Extintor ${code} encontrado`);
         navigate({ to: "/cadastro/$id", params: { id: found.id } });
         return;
       }
