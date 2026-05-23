@@ -149,8 +149,8 @@ export function QrScanner({ open, onClose, onDetected }: Props) {
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 p-6 text-carbon-foreground text-center">
               {permissionError ? (
                 <>
-                  <AlertTriangle className="size-8 text-amber-400" />
-                  <p className="text-sm">{permissionError}</p>
+                  <AlertTriangle className="size-8 text-red-500" />
+                  <p className="text-sm text-red-400 font-medium">{permissionError}</p>
                   <Button
                     type="button"
                     size="lg"
@@ -173,7 +173,7 @@ export function QrScanner({ open, onClose, onDetected }: Props) {
                     disabled={starting}
                     className="bg-security text-security-foreground hover:bg-security/90 px-6 py-6 text-base"
                   >
-                    <Camera className="size-5" /> Ativar Câmera
+                    <Camera className="size-5" /> Permitir e Abrir Câmera
                   </Button>
                 </>
               )}
