@@ -97,9 +97,12 @@ function LandingPage() {
             </button>
             <Link
               to="/login"
-              className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold border border-red-500/60 text-red-600 dark:text-red-400 hover:bg-red-500 hover:text-white dark:hover:text-white transition-all"
+              aria-label="Acesso Restrito"
+              className="inline-flex items-center gap-1.5 px-3 py-2 sm:px-4 rounded-full text-xs font-semibold border border-red-500/60 text-red-600 dark:text-red-400 hover:bg-red-500 hover:text-white dark:hover:text-white transition-all"
             >
-              Acesso Restrito
+              <Lock className="size-3.5" strokeWidth={2} />
+              <span className="hidden xs:inline sm:inline">Acesso Restrito</span>
+              <span className="xs:hidden sm:hidden">Acesso</span>
             </Link>
           </div>
         </div>
