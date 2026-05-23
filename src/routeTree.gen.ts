@@ -9,7 +9,6 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as VencimentosRouteImport } from './routes/vencimentos'
 import { Route as SolicitacoesRouteImport } from './routes/solicitacoes'
 import { Route as ScannerRouteImport } from './routes/scanner'
 import { Route as RelatoriosRouteImport } from './routes/relatorios'
@@ -24,11 +23,6 @@ import { Route as AlertasRouteImport } from './routes/alertas'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CadastroIdRouteImport } from './routes/cadastro.$id'
 
-const VencimentosRoute = VencimentosRouteImport.update({
-  id: '/vencimentos',
-  path: '/vencimentos',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const SolicitacoesRoute = SolicitacoesRouteImport.update({
   id: '/solicitacoes',
   path: '/solicitacoes',
@@ -108,7 +102,6 @@ export interface FileRoutesByFullPath {
   '/relatorios': typeof RelatoriosRoute
   '/scanner': typeof ScannerRoute
   '/solicitacoes': typeof SolicitacoesRoute
-  '/vencimentos': typeof VencimentosRoute
   '/cadastro/$id': typeof CadastroIdRoute
 }
 export interface FileRoutesByTo {
@@ -124,7 +117,6 @@ export interface FileRoutesByTo {
   '/relatorios': typeof RelatoriosRoute
   '/scanner': typeof ScannerRoute
   '/solicitacoes': typeof SolicitacoesRoute
-  '/vencimentos': typeof VencimentosRoute
   '/cadastro/$id': typeof CadastroIdRoute
 }
 export interface FileRoutesById {
@@ -141,7 +133,6 @@ export interface FileRoutesById {
   '/relatorios': typeof RelatoriosRoute
   '/scanner': typeof ScannerRoute
   '/solicitacoes': typeof SolicitacoesRoute
-  '/vencimentos': typeof VencimentosRoute
   '/cadastro/$id': typeof CadastroIdRoute
 }
 export interface FileRouteTypes {
@@ -159,7 +150,6 @@ export interface FileRouteTypes {
     | '/relatorios'
     | '/scanner'
     | '/solicitacoes'
-    | '/vencimentos'
     | '/cadastro/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -175,7 +165,6 @@ export interface FileRouteTypes {
     | '/relatorios'
     | '/scanner'
     | '/solicitacoes'
-    | '/vencimentos'
     | '/cadastro/$id'
   id:
     | '__root__'
@@ -191,7 +180,6 @@ export interface FileRouteTypes {
     | '/relatorios'
     | '/scanner'
     | '/solicitacoes'
-    | '/vencimentos'
     | '/cadastro/$id'
   fileRoutesById: FileRoutesById
 }
@@ -208,19 +196,11 @@ export interface RootRouteChildren {
   RelatoriosRoute: typeof RelatoriosRoute
   ScannerRoute: typeof ScannerRoute
   SolicitacoesRoute: typeof SolicitacoesRoute
-  VencimentosRoute: typeof VencimentosRoute
   CadastroIdRoute: typeof CadastroIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/vencimentos': {
-      id: '/vencimentos'
-      path: '/vencimentos'
-      fullPath: '/vencimentos'
-      preLoaderRoute: typeof VencimentosRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/solicitacoes': {
       id: '/solicitacoes'
       path: '/solicitacoes'
@@ -328,9 +308,17 @@ const rootRouteChildren: RootRouteChildren = {
   RelatoriosRoute: RelatoriosRoute,
   ScannerRoute: ScannerRoute,
   SolicitacoesRoute: SolicitacoesRoute,
-  VencimentosRoute: VencimentosRoute,
   CadastroIdRoute: CadastroIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
