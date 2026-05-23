@@ -10,84 +10,115 @@ interface Props {
   onDetected: (code: string) => void;
 }
 
+const CONTAINER_ID = "fireguard-qr-reader";
+
 export function QrScanner({ open, onClose, onDetected }: Props) {
-  const containerId = "fireguard-qr-reader";
-  const scannerRef = useRef<Html5Qrcode | null>(null);
   const [manual, setManual] = useState("");
-  const [running, setRunning] = useState(false);
+  const [active, setActive] = useState(false);
   const [starting, setStarting] = useState(false);
   const [permissionError, setPermissionError] = useState<string | null>(null);
   const detectedRef = useRef(false);
+  const onDetectedRef = useRef(onDetected);
 
-  const stopScanner = async () => {
-    const s = scannerRef.current;
-    scannerRef.current = null;
-    if (!s) return;
-    try {
-      if (s.isScanning) await s.stop();
-      await s.clear();
-    } catch {
-      // ignore
-    }
-    setRunning(false);
-  };
+  useEffect(() => {
+    onDetectedRef.current = onDetected;
+  }, [onDetected]);
 
-  const startScanner = async () => {
-    if (scannerRef.current || starting) return;
-    setPermissionError(null);
-    setStarting(true);
-    detectedRef.current = false;
-    try {
-      const el = document.getElementById(containerId);
-      if (el) el.innerHTML = "";
-      const scanner = new Html5Qrcode(containerId, { verbose: false });
-      scannerRef.current = scanner;
-      await scanner.start(
-        { facingMode: { ideal: "environment" } },
-        { fps: 10, qrbox: { width: 240, height: 240 } },
-        (decodedText) => {
-          if (detectedRef.current) return;
-          detectedRef.current = true;
-          const code = decodedText.trim();
-          stopScanner().finally(() => onDetected(code));
-        },
-        () => {}
-      );
-      setRunning(true);
-    } catch (err) {
-      console.error(err);
-      scannerRef.current = null;
-      const name = (err as { name?: string })?.name ?? "";
-      if (name === "NotAllowedError" || name === "PermissionDeniedError") {
-        setPermissionError("Permissão negada. Por favor, libere o acesso à câmera nas configurações do seu navegador.");
-      } else if (name === "NotFoundError" || name === "DevicesNotFoundError") {
-        setPermissionError("Nenhuma câmera foi encontrada neste dispositivo. Use o modo manual abaixo.");
-      } else {
-        setPermissionError("Não foi possível iniciar a câmera. Tente novamente ou use o modo manual abaixo.");
-      }
-    } finally {
-      setStarting(false);
-    }
-  };
-
-  // Always stop the scanner when the dialog closes or component unmounts.
+  // Reset when dialog closes.
   useEffect(() => {
     if (!open) {
-      stopScanner();
+      setActive(false);
       setPermissionError(null);
+      detectedRef.current = false;
     }
-    return () => {
-      stopScanner();
-    };
   }, [open]);
+
+  // Camera lifecycle — guarded by `active` so it only starts after the user
+  // clicks "Ativar Câmera". A local `scannerInstance` ensures React Strict
+  // Mode's double mount can't leave zombie cameras: each mount owns its own
+  // instance and the cleanup stops/clears exactly that one.
+  useEffect(() => {
+    if (!open || !active) return;
+
+    let scannerInstance: Html5Qrcode | null = null;
+    let cancelled = false;
+    detectedRef.current = false;
+    setStarting(true);
+    setPermissionError(null);
+
+    const el = document.getElementById(CONTAINER_ID);
+    if (el) el.innerHTML = "";
+
+    scannerInstance = new Html5Qrcode(CONTAINER_ID, { verbose: false });
+
+    const onScanSuccess = (decodedText: string) => {
+      if (detectedRef.current) return;
+      detectedRef.current = true;
+      const code = decodedText.trim();
+      const s = scannerInstance;
+      scannerInstance = null;
+      const finish = () => onDetectedRef.current(code);
+      if (s) {
+        (s.isScanning ? s.stop() : Promise.resolve())
+          .then(() => s.clear())
+          .catch(() => undefined)
+          .finally(finish);
+      } else {
+        finish();
+      }
+    };
+    const onScanFailure = () => {};
+
+    scannerInstance
+      .start(
+        { facingMode: { ideal: "environment" } },
+        { fps: 10, qrbox: { width: 240, height: 240 } },
+        onScanSuccess,
+        onScanFailure,
+      )
+      .then(() => {
+        if (cancelled && scannerInstance) {
+          const s = scannerInstance;
+          scannerInstance = null;
+          s.stop().then(() => s.clear()).catch(() => undefined);
+        }
+      })
+      .catch((err: unknown) => {
+        console.error(err);
+        const name = (err as { name?: string })?.name ?? "";
+        if (name === "NotAllowedError" || name === "PermissionDeniedError") {
+          setPermissionError("Permissão negada. Libere o acesso à câmera nas configurações do navegador.");
+        } else if (name === "NotFoundError" || name === "DevicesNotFoundError") {
+          setPermissionError("Nenhuma câmera encontrada neste dispositivo. Use o modo manual abaixo.");
+        } else {
+          setPermissionError("Não foi possível iniciar a câmera. Tente novamente ou use o modo manual.");
+        }
+        setActive(false);
+        scannerInstance = null;
+      })
+      .finally(() => {
+        if (!cancelled) setStarting(false);
+      });
+
+    return () => {
+      cancelled = true;
+      const s = scannerInstance;
+      scannerInstance = null;
+      if (s) {
+        (s.isScanning ? s.stop() : Promise.resolve())
+          .then(() => s.clear())
+          .catch(console.error);
+      }
+    };
+  }, [open, active]);
 
   const submitManual = (e: React.FormEvent) => {
     e.preventDefault();
     const c = manual.trim();
     if (!c) return;
     detectedRef.current = true;
-    stopScanner();
-    onDetected(c);
+    setActive(false);
+    onDetectedRef.current(c);
     setManual("");
   };
 
@@ -103,8 +134,8 @@ export function QrScanner({ open, onClose, onDetected }: Props) {
           </DialogDescription>
         </DialogHeader>
         <div className="bg-carbon relative">
-          <div id={containerId} className="w-full aspect-square [&_video]:w-full [&_video]:h-full [&_video]:object-cover" />
-          {!running && (
+          <div id={CONTAINER_ID} className="w-full aspect-square [&_video]:w-full [&_video]:h-full [&_video]:object-cover" />
+          {!active && (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 p-6 text-carbon-foreground text-center">
               {permissionError ? (
                 <>
@@ -112,8 +143,8 @@ export function QrScanner({ open, onClose, onDetected }: Props) {
                   <p className="text-sm">{permissionError}</p>
                   <Button
                     type="button"
-                    onClick={startScanner}
-                    disabled={starting}
+                    size="lg"
+                    onClick={() => setActive(true)}
                     className="bg-security text-security-foreground hover:bg-security/90"
                   >
                     <Camera className="size-4" /> Tentar novamente
@@ -127,15 +158,20 @@ export function QrScanner({ open, onClose, onDetected }: Props) {
                   </p>
                   <Button
                     type="button"
-                    onClick={startScanner}
+                    size="lg"
+                    onClick={() => setActive(true)}
                     disabled={starting}
-                    className="bg-security text-security-foreground hover:bg-security/90"
+                    className="bg-security text-security-foreground hover:bg-security/90 px-6 py-6 text-base"
                   >
-                    <Camera className="size-4" />
-                    {starting ? "Iniciando…" : "Ativar Câmera para Escanear"}
+                    <Camera className="size-5" /> Ativar Câmera
                   </Button>
                 </>
               )}
+            </div>
+          )}
+          {active && starting && (
+            <div className="absolute inset-0 flex items-center justify-center text-carbon-foreground/80 text-sm">
+              Iniciando câmera…
             </div>
           )}
         </div>
@@ -154,7 +190,7 @@ export function QrScanner({ open, onClose, onDetected }: Props) {
               Buscar
             </Button>
           </div>
-          <Button type="button" variant="ghost" className="w-full" onClick={() => { stopScanner(); onClose(); }}>
+          <Button type="button" variant="ghost" className="w-full" onClick={() => { setActive(false); onClose(); }}>
             <X className="size-4" /> Cancelar
           </Button>
         </form>
