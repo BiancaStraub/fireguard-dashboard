@@ -1,12 +1,24 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AppShell } from "@/components/fireguard/AppShell";
 import { useQuery } from "@tanstack/react-query";
-import { listInspecoes, listExtintores, type ChecklistItem } from "@/lib/fireguard/services";
+import { listInspecoes, listExtintores, statusFor } from "@/lib/fireguard/services";
 import { Button } from "@/components/ui/button";
-import { FileDown, CheckCircle2, AlertTriangle, User } from "lucide-react";
+import { FileDown } from "lucide-react";
 import { format } from "date-fns";
-import { ptBR } from "date-fns/locale";
 import { toast } from "sonner";
+import {
+  ResponsiveContainer,
+  LineChart,
+  Line,
+  BarChart,
+  Bar,
+  Cell,
+  XAxis,
+  YAxis,
+  Tooltip,
+  CartesianGrid,
+} from "recharts";
+import { useMemo } from "react";
 
 export const Route = createFileRoute("/relatorios")({
   head: () => ({ meta: [{ title: "Relatórios — FireGuard" }] }),
@@ -18,6 +30,48 @@ function RelatoriosPage() {
   const { data: extintores = [] } = useQuery({ queryKey: ["extintores"], queryFn: listExtintores });
   const codigoMap = new Map(extintores.map((e) => [e.id, e.codigo]));
   const sorted = [...inspecoes].sort((a, b) => +new Date(b.data) - +new Date(a.data));
+
+  // Série mensal: últimas 6 referências de mês (conformes vs não conformes)
+  const desempenhoMensal = useMemo(() => {
+    const now = new Date();
+    const buckets: { key: string; label: string; conformes: number; naoConformes: number }[] = [];
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      buckets.push({
+        key: `${d.getFullYear()}-${d.getMonth()}`,
+        label: format(d, "MMM/yy"),
+        conformes: 0,
+        naoConformes: 0,
+      });
+    }
+    for (const i of inspecoes) {
+      const d = new Date(i.data);
+      const key = `${d.getFullYear()}-${d.getMonth()}`;
+      const b = buckets.find((x) => x.key === key);
+      if (!b) continue;
+      if (i.conforme) b.conformes += 1;
+      else b.naoConformes += 1;
+    }
+    return buckets;
+  }, [inspecoes]);
+
+  // Distribuição de status dos extintores
+  const statusExtintores = useMemo(() => {
+    let ok = 0, vencendo = 0, vencidos = 0, outros = 0;
+    for (const e of extintores) {
+      const s = statusFor(e);
+      if (s === "ok") ok += 1;
+      else if (s === "vencido") vencidos += 1;
+      else if (s === "vencendo7" || s === "vencendo15" || s === "vencendo30") vencendo += 1;
+      else outros += 1;
+    }
+    return [
+      { status: "Conformes", total: ok, fill: "var(--safe)" },
+      { status: "Vencendo", total: vencendo, fill: "var(--alert)" },
+      { status: "Vencidos", total: vencidos, fill: "var(--security)" },
+      { status: "Outros", total: outros, fill: "var(--muted-foreground)" },
+    ];
+  }, [extintores]);
 
   const exportar = () => {
     const now = new Date();
@@ -48,8 +102,8 @@ function RelatoriosPage() {
     <AppShell>
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
         <div>
-          <p className="text-xs font-mono uppercase tracking-widest text-muted-foreground mb-1">Histórico</p>
-          <h1 className="text-3xl font-semibold tracking-tight">Relatórios e Inspeções</h1>
+          <p className="text-xs font-mono uppercase tracking-widest text-muted-foreground mb-1">Visão Analítica</p>
+          <h1 className="text-3xl font-semibold tracking-tight">Relatórios e Análises</h1>
           <p className="text-sm text-muted-foreground mt-1">{sorted.length} registros · Última: {sorted[0] ? format(new Date(sorted[0].data), "dd/MM/yyyy HH:mm") : "—"}</p>
         </div>
         <Button onClick={exportar} className="h-11 bg-security hover:bg-security/90 text-security-foreground font-semibold shadow-glow-red">
@@ -57,62 +111,47 @@ function RelatoriosPage() {
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        <div className="lg:col-span-1 space-y-4">
-          <SummaryCard label="Conformes" value={sorted.filter((i) => i.conforme).length} accent="safe" />
-          <SummaryCard label="Não Conformes" value={sorted.filter((i) => !i.conforme).length} accent="security" />
-          <SummaryCard label="Total" value={sorted.length} accent="default" />
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <SummaryCard label="Conformes" value={sorted.filter((i) => i.conforme).length} accent="safe" />
+        <SummaryCard label="Não Conformes" value={sorted.filter((i) => !i.conforme).length} accent="security" />
+        <SummaryCard label="Total de Inspeções" value={sorted.length} accent="default" />
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="bg-card border border-border rounded-2xl shadow-soft p-6 md:p-8">
+          <h3 className="font-semibold text-lg">Desempenho de Inspeções</h3>
+          <p className="text-xs text-muted-foreground mt-0.5 mb-6">Conformes vs. Não conformes (últimos 6 meses)</p>
+          <div className="h-72 -mx-2">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={desempenhoMensal}>
+                <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" vertical={false} />
+                <XAxis dataKey="label" tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} axisLine={false} tickLine={false} allowDecimals={false} />
+                <Tooltip contentStyle={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 8, fontSize: 12 }} />
+                <Line type="monotone" dataKey="conformes" name="Conformes" stroke="var(--safe)" strokeWidth={2.5} dot={{ r: 4 }} />
+                <Line type="monotone" dataKey="naoConformes" name="Não conformes" stroke="var(--security)" strokeWidth={2.5} dot={{ r: 4 }} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
         </div>
 
-        <div className="lg:col-span-3">
-          <div className="bg-card border border-border rounded-2xl shadow-soft p-6 md:p-8">
-            <h3 className="font-semibold mb-1">Linha do Tempo</h3>
-            <p className="text-xs text-muted-foreground mb-6">Inspeções recentes em ordem cronológica</p>
-
-            <div className="relative">
-              <div className="absolute left-4 top-2 bottom-2 w-px bg-border" />
-              <div className="space-y-6">
-                {sorted.map((i) => {
-                  const itens = (Array.isArray(i.itens) ? i.itens : []) as unknown as ChecklistItem[];
-                  const naoConformes = itens.filter((it) => !it.conforme);
-                  return (
-                    <div key={i.id} className="relative pl-12">
-                      <div className={`absolute left-0 top-1 size-8 rounded-full border-4 border-background flex items-center justify-center ${i.conforme ? "bg-safe" : "bg-security"}`}>
-                        {i.conforme ? <CheckCircle2 className="size-4 text-safe-foreground" /> : <AlertTriangle className="size-4 text-security-foreground" />}
-                      </div>
-                      <div className="bg-secondary/40 border border-border rounded-xl p-4">
-                        <div className="flex items-start justify-between gap-3 mb-2 flex-wrap">
-                          <div>
-                            <p className="font-semibold flex items-center gap-2 flex-wrap">
-                              <span className="font-mono text-sm">{codigoMap.get(i.extintor_id) ?? i.extintor_id.slice(0, 8)}</span>
-                              <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${i.conforme ? "bg-safe/10 text-safe" : "bg-security/10 text-security"}`}>
-                                {i.conforme ? "Conforme" : "Não conforme"}
-                              </span>
-                            </p>
-                            <p className="text-xs text-muted-foreground mt-1 flex items-center gap-3">
-                              <span>{format(new Date(i.data), "dd 'de' MMM 'às' HH:mm", { locale: ptBR })}</span>
-                              <span className="flex items-center gap-1"><User className="size-3" />{i.inspetor_nome}</span>
-                            </p>
-                          </div>
-                        </div>
-                        {naoConformes.length > 0 && (
-                          <div className="mt-3 pt-3 border-t border-border">
-                            <p className="text-xs font-mono uppercase tracking-wider text-security mb-1.5">Itens não conformes</p>
-                            <ul className="text-xs text-foreground space-y-0.5">
-                              {naoConformes.map((nc) => <li key={nc.key}>· {nc.label}</li>)}
-                            </ul>
-                          </div>
-                        )}
-                        {i.observacoes && (
-                          <p className="text-xs text-muted-foreground mt-3 italic">"{i.observacoes}"</p>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-                {sorted.length === 0 && <p className="text-sm text-muted-foreground text-center py-12">Nenhuma inspeção registrada ainda.</p>}
-              </div>
-            </div>
+        <div className="bg-card border border-border rounded-2xl shadow-soft p-6 md:p-8">
+          <h3 className="font-semibold text-lg">Status dos Extintores</h3>
+          <p className="text-xs text-muted-foreground mt-0.5 mb-6">Distribuição atual por situação</p>
+          <div className="h-72 -mx-2">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={statusExtintores}>
+                <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" vertical={false} />
+                <XAxis dataKey="status" tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} axisLine={false} tickLine={false} allowDecimals={false} />
+                <Tooltip contentStyle={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 8, fontSize: 12 }} />
+                <Bar dataKey="total" radius={[6, 6, 0, 0]} maxBarSize={64}>
+                  {statusExtintores.map((s) => (
+                    <Cell key={s.status} fill={s.fill} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
           </div>
         </div>
       </div>
