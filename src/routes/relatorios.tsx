@@ -12,6 +12,7 @@ import {
   Line,
   BarChart,
   Bar,
+  Cell,
   XAxis,
   YAxis,
   Tooltip,
@@ -144,7 +145,11 @@ function RelatoriosPage() {
                 <XAxis dataKey="status" tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} axisLine={false} tickLine={false} />
                 <YAxis tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} axisLine={false} tickLine={false} allowDecimals={false} />
                 <Tooltip contentStyle={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 8, fontSize: 12 }} />
-                <Bar dataKey="total" radius={[6, 6, 0, 0]} maxBarSize={64} />
+                <Bar dataKey="total" radius={[6, 6, 0, 0]} maxBarSize={64}>
+                  {statusExtintores.map((s) => (
+                    <Cell key={s.status} fill={s.fill} />
+                  ))}
+                </Bar>
               </BarChart>
             </ResponsiveContainer>
           </div>
