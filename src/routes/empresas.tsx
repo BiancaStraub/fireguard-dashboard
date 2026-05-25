@@ -2,7 +2,10 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { AppShell } from "@/components/fireguard/AppShell";
 import { useQuery } from "@tanstack/react-query";
 import { listEmpresas, countExtintoresPorEmpresa } from "@/lib/fireguard/services";
-import { Building2, MapPin, Hash, ChevronRight } from "lucide-react";
+import { Building2, MapPin, Hash, ChevronRight, Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { EmpresaFormDialog } from "@/components/fireguard/EmpresaFormDialog";
+import { useAuth } from "@/lib/fireguard/auth";
 
 export const Route = createFileRoute("/empresas")({
   head: () => ({ meta: [{ title: "Empresas — FireGuard" }] }),
@@ -11,15 +14,28 @@ export const Route = createFileRoute("/empresas")({
 
 function EmpresasPage() {
   const navigate = useNavigate();
+  const { profile } = useAuth();
+  const isAdmin = profile?.role === "admin";
   const { data: empresas = [], isLoading } = useQuery({ queryKey: ["empresas"], queryFn: listEmpresas });
   const { data: counts } = useQuery({ queryKey: ["empresas-counts"], queryFn: countExtintoresPorEmpresa });
 
   return (
     <AppShell>
-      <div className="mb-8">
-        <p className="text-xs font-mono uppercase tracking-widest text-muted-foreground mb-1">Extintores</p>
-        <h1 className="text-3xl font-semibold tracking-tight">Selecione uma Empresa</h1>
-        <p className="text-sm text-muted-foreground mt-1">Acesse o inventário detalhado de cada unidade conforme NBR 13485 / 12693.</p>
+      <div className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div>
+          <p className="text-xs font-mono uppercase tracking-widest text-muted-foreground mb-1">Extintores</p>
+          <h1 className="text-3xl font-semibold tracking-tight">Selecione uma Empresa</h1>
+          <p className="text-sm text-muted-foreground mt-1">Acesse o inventário detalhado de cada unidade conforme NBR 13485 / 12693.</p>
+        </div>
+        {isAdmin && (
+          <EmpresaFormDialog
+            trigger={
+              <Button className="h-11 bg-security hover:bg-security/90 text-security-foreground">
+                <Plus className="size-4" /> Cadastrar Empresa
+              </Button>
+            }
+          />
+        )}
       </div>
 
       {isLoading && <p className="text-sm text-muted-foreground">Carregando...</p>}

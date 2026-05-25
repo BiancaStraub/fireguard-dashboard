@@ -82,6 +82,16 @@ export async function listEmpresas() {
   return data ?? [];
 }
 
+export async function createEmpresa(input: { nome: string; cnpj: string; endereco: string }) {
+  const { data, error } = await supabase
+    .from("empresas")
+    .insert(input)
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+}
+
 export async function getEmpresa(id: string) {
   const { data, error } = await supabase
     .from("empresas")
