@@ -23,6 +23,16 @@ export function QrScanner({ open, onClose, onDetected }: Props) {
 
     const start = async () => {
       try {
+        // Wait for the dialog DOM (and the reader container) to actually mount
+        for (let i = 0; i < 30; i++) {
+          if (document.getElementById(containerId)) break;
+          await new Promise((r) => requestAnimationFrame(() => r(null)));
+        }
+        if (cancelled) return;
+        if (!document.getElementById(containerId)) {
+          toast.error("Não foi possível inicializar o leitor. Use o modo manual abaixo.");
+          return;
+        }
         const scanner = new Html5Qrcode(containerId);
         scannerRef.current = scanner;
         await scanner.start(
