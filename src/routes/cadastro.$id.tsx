@@ -2,6 +2,8 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { AppShell } from "@/components/fireguard/AppShell";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getExtintor, upsertExtintor, listInspecoes, createInspecao, type ExtintorInsert } from "@/lib/fireguard/services";
+import { listEmpresas } from "@/lib/fireguard/services";
+import { EmpresaFormDialog } from "@/components/fireguard/EmpresaFormDialog";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ArrowLeft, CalendarIcon, MapPin, FileText, Plus, ClipboardList, ShieldCheck } from "lucide-react";
+import { ArrowLeft, CalendarIcon, MapPin, FileText, Plus, ClipboardList, ShieldCheck, Building2 } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { FileUpload } from "@/components/fireguard/FileUpload";
 import type { Anexo } from "@/lib/fireguard/services";
@@ -73,6 +75,8 @@ function CadastroPage() {
   });
   const [fotos, setFotos] = useState<Anexo[]>([]);
 
+  const { data: empresas = [] } = useQuery({ queryKey: ["empresas"], queryFn: listEmpresas });
+
   useEffect(() => {
     if (existing) {
       setForm({
@@ -90,6 +94,7 @@ function CadastroPage() {
         altura_cm: existing.altura_cm,
         observacoes: existing.observacoes,
         fotos: existing.fotos,
+        empresa_id: existing.empresa_id,
       });
       setFotos((existing.fotos ?? []).map((url) => ({ name: url.split("/").pop() ?? "foto", url })));
     }
@@ -112,6 +117,10 @@ function CadastroPage() {
       toast.error("Preencha código, prédio, andar e setor.");
       return;
     }
+    if (!form.empresa_id) {
+      toast.error("Selecione a empresa do extintor.");
+      return;
+    }
     save.mutate();
   };
 
@@ -127,6 +136,28 @@ function CadastroPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <Section title="Equipamento" subtitle="Identificação e tipo">
+          <Field label="Empresa">
+            <div className="flex gap-2">
+              <Select value={form.empresa_id ?? ""} onValueChange={(v) => set("empresa_id", v)}>
+                <SelectTrigger className="flex-1">
+                  <SelectValue placeholder="Selecione a empresa" />
+                </SelectTrigger>
+                <SelectContent>
+                  {empresas.map((e) => (
+                    <SelectItem key={e.id} value={e.id}>{e.nome}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <EmpresaFormDialog
+                onCreated={(empresa) => set("empresa_id", empresa.id)}
+                trigger={
+                  <Button type="button" variant="outline" size="icon" title="Cadastrar nova empresa">
+                    <Building2 className="size-4" />
+                  </Button>
+                }
+              />
+            </div>
+          </Field>
           <Field label="Código (QR / barras)">
             <Input value={form.codigo} onChange={(e) => set("codigo", e.target.value)} placeholder="FG-XXXX" className="font-mono" />
           </Field>
